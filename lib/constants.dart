@@ -1,28 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-TextStyle kLoginTitleStyle(Size size) => GoogleFonts.ubuntu(
+TextStyle loginTitleStyle(Size size) => GoogleFonts.openSans(
       fontSize: size.height * 0.060,
       fontWeight: FontWeight.bold,
     );
 
-TextStyle kLoginSubtitleStyle(Size size) => GoogleFonts.ubuntu(
+TextStyle loginSubtitleStyle(Size size) => GoogleFonts.openSans(
       fontSize: size.height * 0.030,
     );
 
-TextStyle kLoginTermsAndPrivacyStyle(Size size) =>
-    GoogleFonts.ubuntu(fontSize: 15, color: Colors.grey, height: 1.5);
+TextStyle loginFinePrintStyle(Size size, {Color? color}) =>
+    GoogleFonts.openSans(fontSize: 15, color: color ?? Colors.grey, height: 1.5);
 
-TextStyle kHaveAnAccountStyle(Size size) =>
-    GoogleFonts.ubuntu(fontSize: size.height * 0.022, color: Colors.black);
+TextStyle textFormFieldStyle() => const TextStyle(color: Colors.black);
 
-TextStyle kLoginOrSignUpTextStyle(
-  Size size,
-) =>
-    GoogleFonts.ubuntu(
-      fontSize: size.height * 0.022,
-      fontWeight: FontWeight.w500,
-      color: Colors.deepPurpleAccent,
-    );
+TextStyle textFormErrorStyle() => const TextStyle(color: Colors.redAccent);
 
-TextStyle kTextFormFieldStyle() => const TextStyle(color: Colors.black);
+String errorMessageInvalidLength(String id, {required int lower, int? upper}) => upper != null
+    ? 'Your $id has to be between $lower and $upper characters in length.'
+    : 'Your $id must at least be $lower characters in length.';
+
+TextStyle textChatBubbleStyle() => const TextStyle(color: Colors.white);

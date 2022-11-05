@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:it_class_frontend/views/signUp_view.dart';
+import 'package:get/get.dart';
+import 'package:it_class_frontend/util/connection_util.dart';
+import 'package:it_class_frontend/views/login_view.dart';
 
-void main() {
+import 'controller/simple_ui_controller.dart';
+
+void main() async {
+  Get.put(SimpleUIController());
+  Get.put<SocketInterface>(
+    SocketInterface("localhost"),
+  );
+
   runApp(const MyApp());
 }
 
@@ -10,9 +19,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
+      theme: ThemeData(
+        primarySwatch: Colors.deepPurple,
+      ),
+      themeMode: ThemeMode.system,
       debugShowCheckedModeBanner: false,
-      home: SignUpView(),
+      home: const LoginView(),
     );
   }
 }
