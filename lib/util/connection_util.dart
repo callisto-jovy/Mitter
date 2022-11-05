@@ -20,11 +20,12 @@ class SocketInterface {
   late final Socket _socket;
 
   Future<void> send(String data) async {
-    if (_socket != null) _socket.write(data);
+    if (_socket != null) _socket.writeln(data);
   }
 
   void dataHandler(Uint8List data) {
     //TODO: Packets (for now all incoming data is handled as messages)
+    print(String.fromCharCodes(data));
     previousMessages.add(Message(String.fromCharCodes(data)));
     messages.add(previousMessages);
   }
