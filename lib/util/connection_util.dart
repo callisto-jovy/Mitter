@@ -20,7 +20,7 @@ class SocketInterface {
   late final Socket _socket;
 
   Future<void> send(String data) async {
-    _socket.write(data);
+    if (_socket != null) _socket.write(data);
   }
 
   void dataHandler(Uint8List data) {
@@ -31,10 +31,10 @@ class SocketInterface {
 
   void errorHandler(error, StackTrace trace) {
     print(error);
-    _socket.close();
+    if (_socket != null) _socket.close();
   }
 
   void doneHandler() {
-    _socket.destroy();
+    if (_socket != null) _socket.destroy();
   }
 }
