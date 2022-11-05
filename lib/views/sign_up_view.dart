@@ -1,12 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:it_class_frontend/util/security_util.dart';
+import 'package:it_class_frontend/util/string_validator.dart';
+import 'package:it_class_frontend/widgets/full_width_elevated_button.dart';
 
 import '../constants.dart';
 import '../controller/simple_ui_controller.dart';
-import '../views/login_view.dart';
-import 'package:crypto/crypto.dart';
 
 class SignUpView extends StatefulWidget {
   const SignUpView({Key? key}) : super(key: key);
@@ -30,14 +28,11 @@ class _SignUpViewState extends State<SignUpView> {
     super.dispose();
   }
 
-  final SimpleUIController simpleUIController = Get.put(SimpleUIController());
-
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery
-        .of(context)
-        .size;
-    var theme = Theme.of(context);
+    final Size size = MediaQuery.of(context).size;
+    final ThemeData theme = Theme.of(context);
+    final SimpleUIController simpleUIController = Get.find<SimpleUIController>();
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -88,7 +83,7 @@ class _SignUpViewState extends State<SignUpView> {
           padding: const EdgeInsets.only(left: 20.0),
           child: Text(
             'Sign Up',
-            style: kLoginTitleStyle(size),
+            style: loginTitleStyle(size),
           ),
         ),
         const SizedBox(
@@ -98,7 +93,7 @@ class _SignUpViewState extends State<SignUpView> {
           padding: const EdgeInsets.only(left: 20.0),
           child: Text(
             'Create Account',
-            style: kLoginSubtitleStyle(size),
+            style: loginSubtitleStyle(size),
           ),
         ),
         SizedBox(
@@ -112,7 +107,7 @@ class _SignUpViewState extends State<SignUpView> {
               children: [
                 /// username
                 TextFormField(
-                  style: kTextFormFieldStyle(),
+                  style: textFormFieldStyle(),
                   decoration: const InputDecoration(
                     prefixIcon: Icon(Icons.person),
                     hintText: 'Username',
@@ -120,14 +115,13 @@ class _SignUpViewState extends State<SignUpView> {
                       borderRadius: BorderRadius.all(Radius.circular(15)),
                     ),
                   ),
-
                   controller: nameController,
                   // The validator receives the text that the user has entered.
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter username';
-                    } else if (value.length < 4) {
-                      return 'at least enter 4 characters';
+                      return 'Please enter a username.';
+                    } else if (!value.isUsernameValidLength()) {
+                      return errorMessageInvalidLength('username', lower: 4, upper: 20);
                     }
                     return null;
                   },
@@ -135,10 +129,9 @@ class _SignUpViewState extends State<SignUpView> {
                 SizedBox(
                   height: size.height * 0.02,
                 ),
-
-                /// Gmail
+                // Tag
                 TextFormField(
-                  style: kTextFormFieldStyle(),
+                  style: textFormFieldStyle(),
                   controller: tagController,
                   decoration: const InputDecoration(
                     prefixIcon: Icon(Icons.tag_rounded),
@@ -147,53 +140,59 @@ class _SignUpViewState extends State<SignUpView> {
                       borderRadius: BorderRadius.all(Radius.circular(15)),
                     ),
                   ),
-                  // The validator receives the text that the user has entered.
+                  validator: (input) {
+                    if (input == null || input.isEmpty) {
+                      return 'Please enter a tag.';
+                    } else if (!input.isPasswordValidLength()) {
+                      return errorMessageInvalidLength('tag', lower: 4, upper: 20);
+                    }
+                    return null;
+                  },
                 ),
                 SizedBox(
                   height: size.height * 0.02,
                 ),
-
-                /// password
+                // password
                 Obx(
-                      () =>
-                      TextFormField(
-                        style: kTextFormFieldStyle(),
-                        controller: passwordController,
-                        obscureText: simpleUIController.isObscure.value,
-                        decoration: InputDecoration(
-                          prefixIcon: const Icon(Icons.lock_open),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              simpleUIController.isObscure.value
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                            ),
-                            onPressed: () {
-                              simpleUIController.isObscureActive();
-                            },
-                          ),
-                          hintText: 'Password',
-                          border: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(15)),
-                          ),
+                  () => TextFormField(
+                    //style: textFormFieldStyle(),
+                    controller: passwordController,
+                    obscureText: simpleUIController.isObscure.value,
+                    decoration: InputDecoration(
+                      errorStyle: textFormErrorStyle(),
+                      prefixIcon: const Icon(Icons.lock_open),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          simpleUIController.isObscure.value
+                              ? Icons.visibility
+                              : Icons.visibility_off,
                         ),
-                        // The validator receives the text that the user has entered.
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter some text';
-                          } else if (value.length < 7) {
-                            return 'at least enter 6 characters';
-                          }
-                          return null;
+                        onPressed: () {
+                          simpleUIController.isObscureActive();
                         },
                       ),
+                      hintText: 'Password',
+                      border: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(15)),
+                      ),
+                    ),
+                    // The validator receives the text that the user has entered.
+                    validator: (String? value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a password.';
+                      } else if (!value.isPasswordValidLength()) {
+                        return errorMessageInvalidLength('password', lower: 5);
+                      }
+                      return null;
+                    },
+                  ),
                 ),
                 SizedBox(
                   height: size.height * 0.01,
                 ),
                 Text(
                   'By creating an account you agree to our ToS',
-                  style: kLoginTermsAndPrivacyStyle(size),
+                  style: loginFinePrintStyle(size),
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(
@@ -201,7 +200,14 @@ class _SignUpViewState extends State<SignUpView> {
                 ),
 
                 /// SignUp Button
-                signUpButton(theme),
+                FullWidthElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        //Send to server
+                      }
+                    },
+                    buttonText: 'Sign Up',
+                    height: 55),
                 SizedBox(
                   height: size.height * 0.03,
                 ),
@@ -209,8 +215,8 @@ class _SignUpViewState extends State<SignUpView> {
                 /// Navigate To Login Screen
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(
-                        context, CupertinoPageRoute(builder: (ctx) => const LoginView()));
+                    Navigator.pop(context);
+
                     nameController.clear();
                     tagController.clear();
                     passwordController.clear();
@@ -221,9 +227,12 @@ class _SignUpViewState extends State<SignUpView> {
                   child: RichText(
                     text: TextSpan(
                       text: 'Already have an account? ',
-                      style: kHaveAnAccountStyle(size),
+                      style: loginFinePrintStyle(size),
                       children: [
-                        TextSpan(text: "Login", style: kLoginOrSignUpTextStyle(size)),
+                        TextSpan(
+                            text: 'Login',
+                            style: loginFinePrintStyle(size,
+                                color: Theme.of(context).colorScheme.secondary)),
                       ],
                     ),
                   ),
@@ -233,32 +242,6 @@ class _SignUpViewState extends State<SignUpView> {
           ),
         ),
       ],
-    );
-  }
-
-  // SignUp Button
-  Widget signUpButton(ThemeData theme) {
-    return SizedBox(
-      width: double.infinity,
-      height: 55,
-      child: ElevatedButton(
-        style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all(Colors.deepPurpleAccent),
-          shape: MaterialStateProperty.all(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
-          ),
-        ),
-        onPressed: () {
-          // Validate returns true if the form is valid, or false otherwise.
-          if (_formKey.currentState!.validate()) {
-            PBKDF2 hashing = PBKDF2(hashAlgorithm: sha512224);
-            print(                hashing.generateKey(passwordController.text, Salt.generate(50), 20, 50));
-          }
-        },
-        child: const Text('Sign up'),
-      ),
     );
   }
 }

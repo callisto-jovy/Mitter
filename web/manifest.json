@@ -1,11 +1,11 @@
 {
-    "name": "it_class_frontend",
-    "short_name": "it_class_frontend",
+    "name": "it_frontend",
+    "short_name": "it_frontend",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "Frontend for an IT class project. Messenger with open chat, comparable to Twitter.",
+    "description": "A new Flutter project.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

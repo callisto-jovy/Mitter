@@ -1,10 +1,14 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
-import 'package:lottie/lottie.dart';
+import 'package:it_class_frontend/util/string_validator.dart';
+import 'package:it_class_frontend/views/sign_up_view.dart';
+import 'package:it_class_frontend/widgets/full_width_elevated_button.dart';
 
 import '../constants.dart';
 import '../controller/simple_ui_controller.dart';
+import '../util/password_util.dart';
+import 'main_page_view.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
@@ -14,16 +18,14 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
-  TextEditingController nameController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
+  TextEditingController tagController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
-    nameController.dispose();
-    emailController.dispose();
+    tagController.dispose();
     passwordController.dispose();
     super.dispose();
   }
@@ -31,7 +33,8 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    SimpleUIController simpleUIController = Get.find<SimpleUIController>();
+    final SimpleUIController simpleUIController = Get.find<SimpleUIController>();
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
@@ -88,8 +91,7 @@ class _LoginViewState extends State<LoginView> {
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment:
-          size.width > 600 ? MainAxisAlignment.center : MainAxisAlignment.start,
+      mainAxisAlignment: size.width > 600 ? MainAxisAlignment.center : MainAxisAlignment.start,
       children: [
         SizedBox(
           height: size.height * 0.03,
@@ -98,7 +100,7 @@ class _LoginViewState extends State<LoginView> {
           padding: const EdgeInsets.only(left: 20.0),
           child: Text(
             'Login',
-            style: kLoginTitleStyle(size),
+            style: loginTitleStyle(size),
           ),
         ),
         const SizedBox(
@@ -108,7 +110,7 @@ class _LoginViewState extends State<LoginView> {
           padding: const EdgeInsets.only(left: 20.0),
           child: Text(
             'Welcome Back',
-            style: kLoginSubtitleStyle(size),
+            style: loginSubtitleStyle(size),
           ),
         ),
         SizedBox(
@@ -122,7 +124,7 @@ class _LoginViewState extends State<LoginView> {
               children: [
                 /// username or Gmail
                 TextFormField(
-                  style: kTextFormFieldStyle(),
+                  style: textFormFieldStyle(),
                   decoration: const InputDecoration(
                     prefixIcon: Icon(Icons.tag_rounded),
                     hintText: 'Tag',
@@ -130,39 +132,17 @@ class _LoginViewState extends State<LoginView> {
                       borderRadius: BorderRadius.all(Radius.circular(15)),
                     ),
                   ),
-                  controller: nameController,
+                  controller: tagController,
                   // The validator receives the text that the user has entered.
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter username';
-                    } else if (value.length < 4) {
-                      return 'at least enter 4 characters';
+                      return 'Please enter a tag.';
+                    } else if (!value.isTagValidLength()) {
+                      return errorMessageInvalidLength('tag', lower: 4, upper: 20);
                     }
                     return null;
                   },
                 ),
-                // SizedBox(
-                //   height: size.height * 0.02,
-                // ),
-                // TextFormField(
-                //   controller: emailController,
-                //   decoration: const InputDecoration(
-                //     prefixIcon: Icon(Icons.email_rounded),
-                //     hintText: 'gmail',
-                //     border: OutlineInputBorder(
-                //       borderRadius: BorderRadius.all(Radius.circular(15)),
-                //     ),
-                //   ),
-                //   // The validator receives the text that the user has entered.
-                //   validator: (value) {
-                //     if (value == null || value.isEmpty) {
-                //       return 'Please enter gmail';
-                //     } else if (!value.endsWith('@gmail.com')) {
-                //       return 'please enter valid gmail';
-                //     }
-                //     return null;
-                //   },
-                // ),
                 SizedBox(
                   height: size.height * 0.02,
                 ),
@@ -170,7 +150,7 @@ class _LoginViewState extends State<LoginView> {
                 /// password
                 Obx(
                   () => TextFormField(
-                    style: kTextFormFieldStyle(),
+                    style: textFormFieldStyle(),
                     controller: passwordController,
                     obscureText: simpleUIController.isObscure.value,
                     decoration: InputDecoration(
@@ -193,30 +173,32 @@ class _LoginViewState extends State<LoginView> {
                     // The validator receives the text that the user has entered.
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter some text';
-                      } else if (value.length < 7) {
-                        return 'at least enter 6 characters';
-                      } else if (value.length > 13) {
-                        return 'maximum character is 13';
+                        return 'Please enter a password.';
+                      } else if (!value.isPasswordValidLength()) {
+                        return errorMessageInvalidLength('password', lower: 4, upper: 20);
                       }
                       return null;
                     },
                   ),
                 ),
                 SizedBox(
-                  height: size.height * 0.01,
-                ),
-                Text(
-                  'Creating an account means you\'re okay with our Terms of Services and our Privacy Policy',
-                  style: kLoginTermsAndPrivacyStyle(size),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(
                   height: size.height * 0.02,
                 ),
 
                 /// Login Button
-                loginButton(),
+                FullWidthElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        if (validateLogin(tagController.text, passwordController.text)) {
+                          Navigator.pushReplacement(
+                              context, CupertinoPageRoute(builder: (ctx) => const MainView()));
+                        } else {
+                          simpleUIController.isPasswordInvalid.toggle();
+                        }
+                      }
+                    },
+                    buttonText: 'Login',
+                    height: 55),
                 SizedBox(
                   height: size.height * 0.03,
                 ),
@@ -224,58 +206,38 @@ class _LoginViewState extends State<LoginView> {
                 /// Navigate To Login Screen
                 GestureDetector(
                   onTap: () {
-                    Navigator.pop(context);
-                    nameController.clear();
-                    emailController.clear();
+                    Navigator.push(
+                        context, CupertinoPageRoute(builder: (ctx) => const SignUpView()));
+                    tagController.clear();
                     passwordController.clear();
                     _formKey.currentState?.reset();
                     simpleUIController.isObscure.value = true;
                   },
                   child: RichText(
                     text: TextSpan(
-                      text: 'Don\'t have an account?',
-                      style: kHaveAnAccountStyle(size),
+                      text: "Don't have an account? ",
+                      style: loginFinePrintStyle(size),
                       children: [
                         TextSpan(
-                          text: " Sign up",
-                          style: kLoginOrSignUpTextStyle(
-                            size,
-                          ),
+                          text: 'Sign up',
+                          style: loginFinePrintStyle(size,
+                              color: Theme.of(context).colorScheme.secondary),
                         ),
                       ],
                     ),
                   ),
                 ),
+                simpleUIController.isPasswordInvalid.value
+                    ? const Text(
+                        'Password or username is invalid.',
+                        style: TextStyle(color: Colors.redAccent),
+                      )
+                    : const SizedBox(),
               ],
             ),
           ),
         ),
       ],
-    );
-  }
-
-  // Login Button
-  Widget loginButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 55,
-      child: ElevatedButton(
-        style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all(Colors.deepPurpleAccent),
-          shape: MaterialStateProperty.all(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
-          ),
-        ),
-        onPressed: () {
-          // Validate returns true if the form is valid, or false otherwise.
-          if (_formKey.currentState!.validate()) {
-            // ... Navigate To your Home Page
-          }
-        },
-        child: const Text('Login'),
-      ),
     );
   }
 }
