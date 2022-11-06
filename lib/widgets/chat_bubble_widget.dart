@@ -22,23 +22,24 @@ class ChatBubble extends StatelessWidget {
               bottomRight: Radius.circular(15))),
       child: Row(
         children: [
-          Material(
-            elevation: 20,
-            shape:
-                const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(25))),
-            clipBehavior: Clip.antiAlias,
-            child: (_message.image != null)
-                ? Image.network(
-                    _message.image!,
-                    fit: BoxFit.fill,
-                    height: size.height * 0.02,
-                    width: size.width * 0.02,
-                  )
-                : Image.asset(
-                    'user',
-                    width: size.width * 0.02,
-                    height: size.height * 0.02,
-                  ),
+          Container(
+            padding: EdgeInsets.only(left: 10),
+            child: Material(
+              elevation: 20,
+              shape: const CircleBorder(),
+              clipBehavior: Clip.antiAlias,
+              child: (_message.image != null)
+                  ? Image.network(
+                      _message.image!,
+                      fit: BoxFit.cover,
+
+                    )
+                  : Image.asset(
+                      'images/user.png',
+                      fit: BoxFit.cover,
+
+                    ),
+            ),
           ),
           Expanded(
             child: Text(
