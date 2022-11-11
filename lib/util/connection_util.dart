@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:it_class_frontend/util/packets/packet.dart';
+
 import 'message.dart';
 
 class SocketInterface {
@@ -19,12 +21,16 @@ class SocketInterface {
     });
   }
 
-  Future<void> send(String data) async {
+  Future<void> send(final Packet data) async {
     if (isConnected)
-      _socket!.writeln(data);
+      data.send().then(
+            (value) => _socket!.writeln(value),
+          );
     else {
-      previousMessages.add(Message(data));
-      messages.add(previousMessages);
+      data.send().then((value) {
+        previousMessages.add(Message(value));
+        messages.add(previousMessages);
+      });
     }
   }
 
