@@ -82,7 +82,7 @@ class _MainViewState extends State<MainView> {
                     return const Center(child: CircularProgressIndicator());
                   }
                 },
-                stream: Get.find<SocketInterface>().messages.stream,
+                stream: Get.find<SocketInterface>().publicMessages.stream,
               ),
               ElevatedButton(
                 onPressed: () => Get.find<SocketInterface>().send(DummyPacket()),

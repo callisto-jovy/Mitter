@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:it_class_frontend/constants.dart';
 
 import '../util/message.dart';
@@ -10,8 +11,6 @@ class ChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
-
     return Card(
       elevation: 10,
       color: Theme.of(context).colorScheme.secondary,
@@ -23,21 +22,19 @@ class ChatBubble extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            padding: EdgeInsets.only(left: 10),
+            padding: const EdgeInsets.only(left: 10),
             child: Material(
               elevation: 20,
               shape: const CircleBorder(),
               clipBehavior: Clip.antiAlias,
-              child: (_message.image != null)
-                  ? Image.network(
-                      _message.image!,
+              child: (_message.sender.profile.isNotEmpty)
+                  ? Image.memory(
+                      _message.sender.profile,
                       fit: BoxFit.cover,
-
                     )
                   : Image.asset(
                       'images/user.png',
                       fit: BoxFit.cover,
-
                     ),
             ),
           ),

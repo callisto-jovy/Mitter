@@ -1,8 +1,10 @@
+import '../users/user.dart';
+
 class Message {
   //TODO: Sender (User class)
 
   final String content;
-  final String? image = null;
+  final User sender;
 
-  Message(this.content);
+  Message(this.sender, this.content);
 }

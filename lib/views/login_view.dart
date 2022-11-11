@@ -189,7 +189,7 @@ class _LoginViewState extends State<LoginView> {
                 FullWidthElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        validateLogin(tagController.text, passwordController.text).then((value) {
+                        validateLogin(tagController.text, passwordController.text, (value) {
                           if (value) {
                             Navigator.pushReplacement(
                                 context, CupertinoPageRoute(builder: (ctx) => const MainView()));

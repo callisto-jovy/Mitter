@@ -1,5 +1,10 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:it_class_frontend/users/user.dart';
+
+User offlineUser = User('Offline', '0000', Uint8List.fromList(List.empty()));
 
 TextStyle loginTitleStyle(Size size) => GoogleFonts.openSans(
       fontSize: size.height * 0.060,
