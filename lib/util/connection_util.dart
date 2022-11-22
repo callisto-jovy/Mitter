@@ -4,7 +4,6 @@ import 'dart:typed_data';
 
 import 'package:it_class_frontend/constants.dart';
 import 'package:it_class_frontend/util/encoder_util.dart';
-import 'package:it_class_frontend/util/id_util.dart';
 import 'package:it_class_frontend/util/packets/packets.dart';
 
 import '../users/user.dart';
@@ -32,17 +31,10 @@ class SocketInterface {
 
   Future<void> send(final Packet data, {final Function(dynamic)? whenReceived}) async {
     if (isConnected) {
-      data.send().then(
-            (value) => _socket!.writeln(value),
-          );
-      if (whenReceived != null) {
-        //Generate random response id
-        String stamp = newStamp;
-        while (callbackRegister.containsKey(stamp)) {
-          stamp = newStamp;
-        }
-        callbackRegister[stamp] = whenReceived;
-      }
+      data.send().then((value) => PacketFormatter.format(value)).then((value) {
+        if (whenReceived != null) callbackRegister[value[1]] = whenReceived;
+        _socket!.writeln(value[0]);
+      });
     } else {
       previousMessages.add(Message(offlineUser, 'You are offline.'));
       publicMessages.add(previousMessages);
@@ -50,7 +42,6 @@ class SocketInterface {
   }
 
   void dataHandler(Uint8List data) {
-    //TODO: Packets (for now all incoming data is handled as messages)
     final String input = String.fromCharCodes(data).trim();
     if (!PacketScanner.isValidForm(input)) {
       //Discard input

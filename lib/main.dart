@@ -8,7 +8,7 @@ import 'controller/simple_ui_controller.dart';
 void main() async {
   Get.put(SimpleUIController());
   Get.put<SocketInterface>(
-    SocketInterface("localhost"),
+    SocketInterface("127.0.0.1"),
   );
 
   runApp(const MyApp());

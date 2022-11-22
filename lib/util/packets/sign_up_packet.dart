@@ -8,7 +8,15 @@ class SignUpPacket extends Packet {
   SignUpPacket(this._username, this._tag, this._password);
 
   @override
-  Future<String> send({List<String>? content}) async {
-    return 'USR CRT $_username $_tag $_password';
+  Future<Map<String, dynamic>> send({List<String>? content}) async {
+    return {
+      "id": "USR",
+      "arg": "CRT",
+      "arguments": [
+        _username,
+        _tag,
+        _password,
+      ]
+    };
   }
 }

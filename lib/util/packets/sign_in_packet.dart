@@ -7,7 +7,14 @@ class SignInPacket extends Packet {
   SignInPacket(this._tag, this._password);
 
   @override
-  Future<String> send({List<String>? content}) async {
-    return 'ACC LIN $_tag $_password';
+  Future<Map<String, dynamic>> send({List<String>? content}) async {
+    return {
+      'id': "ACC",
+      "arg": "LIN",
+      "arguments": [
+        _tag,
+        _password,
+      ]
+    };
   }
 }

@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:it_class_frontend/constants.dart';
 import 'package:it_class_frontend/util/connection_util.dart';
 import 'package:it_class_frontend/widgets/chat_bubble_widget.dart';
-import 'package:it_class_frontend/util/packets/packets.dart';
 
 class MainView extends StatefulWidget {
   const MainView({Key? key}) : super(key: key);
@@ -85,7 +84,7 @@ class _MainViewState extends State<MainView> {
                 stream: Get.find<SocketInterface>().publicMessages.stream,
               ),
               ElevatedButton(
-                onPressed: () => Get.find<SocketInterface>().send(DummyPacket()),
+                onPressed: () => null,
                 child: const Text('Send message'),
               ),
             ],
