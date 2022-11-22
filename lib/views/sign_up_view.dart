@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:it_class_frontend/util/password_util.dart';
 import 'package:it_class_frontend/util/string_validator.dart';
 import 'package:it_class_frontend/widgets/full_width_elevated_button.dart';
 
@@ -203,7 +204,22 @@ class _SignUpViewState extends State<SignUpView> {
                 FullWidthElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        //Send to server
+                        sendLogin(tagController.text, passwordController.text, nameController.text,
+                            (value) {
+                          if (value) {
+                            //navigate to login
+                            Navigator.pop(context);
+
+                            nameController.clear();
+                            tagController.clear();
+                            passwordController.clear();
+                            _formKey.currentState?.reset();
+
+                            simpleUIController.isObscure.value = true;
+                          } else {
+                            //TODO: Tag already taken
+                          }
+                        });
                       }
                     },
                     buttonText: 'Sign Up',

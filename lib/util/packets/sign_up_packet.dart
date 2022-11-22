@@ -10,7 +10,7 @@ class SignUpPacket extends Packet {
   @override
   Future<Map<String, dynamic>> send({List<String>? content}) async {
     return {
-      "id": "USR",
+      "id": "ACC",
       "arg": "CRT",
       "arguments": [
         _username,

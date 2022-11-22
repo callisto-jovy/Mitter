@@ -1,6 +1,7 @@
 import 'package:crypto/crypto.dart';
 import 'package:get/get.dart';
 import 'package:it_class_frontend/util/connection_util.dart';
+import 'package:it_class_frontend/util/encoder_util.dart';
 import 'package:it_class_frontend/util/packets/packets.dart';
 import 'package:it_class_frontend/util/security_util.dart';
 
@@ -14,12 +15,14 @@ void validateLogin(final String tag, final String password, Function(bool) accep
       hashing.generateBase64Key(tag + password, Salt.generate(salt_length), key_rounds, key_length);
   //Send off to server to validate and register callback
   Get.find<SocketInterface>().send(SignInPacket(tag, generatedHash),
-      whenReceived: (value) => accepted.call((value.first == 'TRUE')));
+      whenReceived: (PacketParser value) => accepted.call((value.id != "ERR")));
 }
 
-void sendLogin(final String tag, final String password, final String username) {
+void sendLogin(
+    final String tag, final String password, final String username, Function(bool) signedUp) {
   final String generatedHash =
       hashing.generateBase64Key(tag + password, Salt.generate(salt_length), key_rounds, key_length);
   //Send data
-  Get.find<SocketInterface>().send(SignUpPacket(username, tag, password));
+  Get.find<SocketInterface>().send(SignUpPacket(username, tag, generatedHash),
+      whenReceived: (PacketParser value) => signedUp.call(value.operation == 'CREATED'));
 }

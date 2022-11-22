@@ -6,6 +6,7 @@ class PacketParser {
     'ACC',
     'CHT',
     'USR',
+    'ERR',
   ];
 
   final List<String> _tokens;
@@ -14,11 +15,13 @@ class PacketParser {
 
   String get id => _tokens.first;
 
+  String get operation => _tokens[1];
+
   String get stamp => _tokens[2];
 
   String nthArgument(final int n) => (n + 3) < _tokens.length ? _tokens[n + 3] : 'N/A';
 
-  List<String> get arguments => _tokens.sublist(3); //Strip the id and the stamp
+  List<String> get arguments => _tokens.sublist(3); //Strip the id, operation and the stamp
 
   bool isPacketValid() =>
       _tokens.isNotEmpty &&
@@ -50,7 +53,7 @@ class PacketScanner {
         tokens.add(input.substring(lastSemicolon));
       }
     }
-    return List.empty();
+    return tokens;
   }
 }
 

@@ -15,7 +15,7 @@ class SocketInterface {
 
   //TODO: private messages
 
-  final Map<String, Function(dynamic)> callbackRegister = {};
+  final Map<String, Function(PacketParser)> callbackRegister = {};
 
   Socket? _socket;
 
@@ -29,7 +29,7 @@ class SocketInterface {
     });
   }
 
-  Future<void> send(final Packet data, {final Function(dynamic)? whenReceived}) async {
+  Future<void> send(final Packet data, {final Function(PacketParser)? whenReceived}) async {
     if (isConnected) {
       data.send().then((value) => PacketFormatter.format(value)).then((value) {
         if (whenReceived != null) callbackRegister[value[1]] = whenReceived;
@@ -51,14 +51,14 @@ class SocketInterface {
     if (!packetParser.isPacketValid()) {
       return;
     }
+
     //Call callback to packet
-    callbackRegister[packetParser.stamp]?.call(packetParser.arguments);
+    callbackRegister[packetParser.stamp]?.call(packetParser);
 
     //Handle incoming chat
     if (packetParser.id == 'CHT') {
       final String chat = packetParser.nthArgument(0);
       final String from = packetParser.nthArgument(1); //Tag to resolve
-      //final User user =
 
       final String message = packetParser.arguments.sublist(2).join(' ');
       switch (chat) {
