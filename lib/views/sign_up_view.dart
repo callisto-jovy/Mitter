@@ -6,6 +6,7 @@ import 'package:it_class_frontend/widgets/full_width_elevated_button.dart';
 
 import '../constants.dart';
 import '../controller/simple_ui_controller.dart';
+import '../util/connection_util.dart';
 
 class SignUpView extends StatefulWidget {
   const SignUpView({Key? key}) : super(key: key);
@@ -203,6 +204,10 @@ class _SignUpViewState extends State<SignUpView> {
                 /// SignUp Button
                 FullWidthElevatedButton(
                     onPressed: () {
+                      if (!Get.find<SocketInterface>().isConnected) {
+                        return;
+                      }
+
                       if (_formKey.currentState!.validate()) {
                         sendLogin(tagController.text, passwordController.text, nameController.text,
                             (value) {
@@ -253,6 +258,12 @@ class _SignUpViewState extends State<SignUpView> {
                     ),
                   ),
                 ),
+                Get.find<SocketInterface>().isConnected
+                    ? const SizedBox()
+                    : const Text(
+                        'You are not connected to the server.',
+                        style: TextStyle(color: Colors.redAccent),
+                      ),
               ],
             ),
           ),

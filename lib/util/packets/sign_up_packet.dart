@@ -1,3 +1,4 @@
+import 'package:it_class_frontend/util/encoder_util.dart';
 import 'package:it_class_frontend/util/packets/packet.dart';
 
 class SignUpPacket extends Packet {
@@ -8,15 +9,16 @@ class SignUpPacket extends Packet {
   SignUpPacket(this._username, this._tag, this._password);
 
   @override
-  Future<Map<String, dynamic>> send({List<String>? content}) async {
-    return {
-      "id": "ACC",
-      "arg": "CRT",
-      "arguments": [
-        _username,
-        _tag,
-        _password,
-      ]
-    };
-  }
+  Future<Map<String, dynamic>> send() async => {
+        "id": "ACC",
+        "arg": "CRT",
+        "arguments": [
+          _username,
+          _tag,
+          _password,
+        ]
+      };
+
+  @override
+  bool isResponseValid(PacketCapsule packetCapsule) => packetCapsule.operation == 'CREATED';
 }

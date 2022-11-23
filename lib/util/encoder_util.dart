@@ -1,17 +1,17 @@
 import 'id_util.dart';
 
-class PacketParser {
-  static const List<String> validPackets = [
-    'CRT',
-    'ACC',
-    'CHT',
-    'USR',
-    'ERR',
-  ];
+const List<String> validPackets = [
+  'CRT',
+  'ACC',
+  'CHT',
+  'USR',
+  'ERR',
+];
 
+class PacketCapsule {
   final List<String> _tokens;
 
-  PacketParser(this._tokens);
+  PacketCapsule(this._tokens);
 
   String get id => _tokens.first;
 

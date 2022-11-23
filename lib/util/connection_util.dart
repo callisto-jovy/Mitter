@@ -15,7 +15,7 @@ class SocketInterface {
 
   //TODO: private messages
 
-  final Map<String, Function(PacketParser)> callbackRegister = {};
+  final Map<String, Function(PacketCapsule)> callbackRegister = {};
 
   Socket? _socket;
 
@@ -26,10 +26,11 @@ class SocketInterface {
           .listen(dataHandler, onError: errorHandler, cancelOnError: false, onDone: doneHandler);
     }).catchError((e) {
       print("Unable to connect: $e");
+      _socket = null;
     });
   }
 
-  Future<void> send(final Packet data, {final Function(PacketParser)? whenReceived}) async {
+  Future<void> send(final Packet data, {final Function(PacketCapsule)? whenReceived}) async {
     if (isConnected) {
       data.send().then((value) => PacketFormatter.format(value)).then((value) {
         if (whenReceived != null) callbackRegister[value[1]] = whenReceived;
@@ -47,7 +48,7 @@ class SocketInterface {
       //Discard input
       return;
     }
-    final PacketParser packetParser = PacketParser(PacketScanner.tokenize(input));
+    final PacketCapsule packetParser = PacketCapsule(PacketScanner.tokenize(input));
     if (!packetParser.isPacketValid()) {
       return;
     }

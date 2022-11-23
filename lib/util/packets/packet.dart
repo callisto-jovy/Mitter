@@ -1,5 +1,7 @@
-class Packet {
-  Future<Map<String, dynamic>> send({List<String>? content}) async {
-    return Future.error('Not implemented: send method');
-  }
+import 'package:it_class_frontend/util/encoder_util.dart';
+
+abstract class Packet {
+  Future<Map<String, dynamic>> send();
+
+  bool isResponseValid(final PacketCapsule packetCapsule);
 }

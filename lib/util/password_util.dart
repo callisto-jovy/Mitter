@@ -15,7 +15,7 @@ void validateLogin(final String tag, final String password, Function(bool) accep
       hashing.generateBase64Key(tag + password, Salt.generate(salt_length), key_rounds, key_length);
   //Send off to server to validate and register callback
   Get.find<SocketInterface>().send(SignInPacket(tag, generatedHash),
-      whenReceived: (PacketParser value) => accepted.call((value.id != "ERR")));
+      whenReceived: (PacketCapsule value) => accepted.call((value.id == "COMPLETE")));
 }
 
 void sendLogin(
@@ -24,5 +24,5 @@ void sendLogin(
       hashing.generateBase64Key(tag + password, Salt.generate(salt_length), key_rounds, key_length);
   //Send data
   Get.find<SocketInterface>().send(SignUpPacket(username, tag, generatedHash),
-      whenReceived: (PacketParser value) => signedUp.call(value.operation == 'CREATED'));
+      whenReceived: (PacketCapsule value) => signedUp.call(value.operation == 'CREATED'));
 }

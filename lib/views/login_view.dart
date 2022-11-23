@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:it_class_frontend/util/connection_util.dart';
 import 'package:it_class_frontend/util/string_validator.dart';
 import 'package:it_class_frontend/views/sign_up_view.dart';
 import 'package:it_class_frontend/widgets/full_width_elevated_button.dart';
@@ -188,6 +189,10 @@ class _LoginViewState extends State<LoginView> {
                 /// Login Button
                 FullWidthElevatedButton(
                     onPressed: () {
+                      if (!Get.find<SocketInterface>().isConnected) {
+                        return;
+                      }
+
                       if (_formKey.currentState!.validate()) {
                         validateLogin(tagController.text, passwordController.text, (value) {
                           if (value) {
@@ -235,6 +240,12 @@ class _LoginViewState extends State<LoginView> {
                         style: TextStyle(color: Colors.redAccent),
                       )
                     : const SizedBox(),
+                Get.find<SocketInterface>().isConnected
+                    ? const SizedBox()
+                    : const Text(
+                        'You are not connected to the server.',
+                        style: TextStyle(color: Colors.redAccent),
+                      ),
               ],
             ),
           ),
