@@ -145,7 +145,7 @@ class _SignUpViewState extends State<SignUpView> {
                   validator: (input) {
                     if (input == null || input.isEmpty) {
                       return 'Please enter a tag.';
-                    } else if (!input.isPasswordValidLength()) {
+                    } else if (!input.isTagValidLength()) {
                       return errorMessageInvalidLength('tag', lower: 4, upper: 20);
                     }
                     return null;

@@ -14,6 +14,6 @@ class SendChatPacket extends Packet {
   Future<Map<String, dynamic>> send() async => {
         'id': 'CHT',
         'arg': 'WRT',
-        'arguments': [receiver, _content],
+        'arguments': [_content, receiver]..removeWhere((element) => element == null),
       };
 }

@@ -7,7 +7,7 @@ import 'package:it_class_frontend/util/security_util.dart';
 
 const int key_rounds = 30;
 const int key_length = 256;
-const int salt_length = 50;
+const int salt_length = 0;
 final PBKDF2 hashing = PBKDF2(hashAlgorithm: sha512224);
 
 void validateLogin(final String tag, final String password, Function(bool) accepted) async {
@@ -15,7 +15,7 @@ void validateLogin(final String tag, final String password, Function(bool) accep
       hashing.generateBase64Key(tag + password, Salt.generate(salt_length), key_rounds, key_length);
   //Send off to server to validate and register callback
   Get.find<SocketInterface>().send(SignInPacket(tag, generatedHash),
-      whenReceived: (PacketCapsule value) => accepted.call((value.id == "COMPLETE")));
+      whenReceived: (PacketCapsule value) => accepted.call((value.operation == "COMPLETE")));
 }
 
 void sendLogin(

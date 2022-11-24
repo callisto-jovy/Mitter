@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:it_class_frontend/constants.dart';
 import 'package:it_class_frontend/util/connection_util.dart';
+import 'package:it_class_frontend/util/packets/send_chat_packet.dart';
 import 'package:it_class_frontend/widgets/chat_bubble_widget.dart';
 
 class MainView extends StatefulWidget {
@@ -84,7 +85,8 @@ class _MainViewState extends State<MainView> {
                 stream: Get.find<SocketInterface>().publicMessages.stream,
               ),
               ElevatedButton(
-                onPressed: () => null,
+                onPressed: () =>
+                    Get.find<SocketInterface>().send(SendChatPacket('Content', receiver: 'myself')),
                 child: const Text('Send message'),
               ),
             ],

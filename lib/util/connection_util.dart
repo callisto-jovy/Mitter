@@ -52,7 +52,7 @@ class SocketInterface {
     if (!packetParser.isPacketValid()) {
       return;
     }
-
+    print(input);
     //Call callback to packet
     callbackRegister[packetParser.stamp]?.call(packetParser);
 
