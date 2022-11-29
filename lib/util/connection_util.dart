@@ -1,17 +1,24 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:get/get.dart';
 import 'package:it_class_frontend/constants.dart';
 import 'package:it_class_frontend/util/encoder_util.dart';
 import 'package:it_class_frontend/util/packets/packets.dart';
+import 'package:it_class_frontend/util/packets/user_get_packet.dart';
 
 import '../users/user.dart';
+import 'chat.dart';
+import 'error_resolver.dart';
 import 'message.dart';
 
 class SocketInterface {
   final List<Message> previousMessages = [];
   final StreamController<List<Message>> publicMessages = StreamController<List<Message>>();
+  final StreamController<String> errors = StreamController<String>();
+  final StreamController<Chat> chatController = StreamController<Chat>();
 
   //TODO: private messages
 
@@ -52,25 +59,35 @@ class SocketInterface {
     if (!packetParser.isPacketValid()) {
       return;
     }
-    print(input);
+
     //Call callback to packet
     callbackRegister[packetParser.stamp]?.call(packetParser);
+    //Catch error
+    if (packetParser.id == 'ERR') {
+      //Resolve error from its code
+      final int errorCode = int.parse(packetParser.operation);
+      final ErrorType errorType =
+          ErrorType.values.where((element) => element.code == errorCode).first;
+      errors.add(errorType.description);
+      print(errorType.description);
+      return;
+    }
 
     //Handle incoming chat
     if (packetParser.id == 'CHT') {
-      final String chat = packetParser.nthArgument(0);
-      final String from = packetParser.nthArgument(1); //Tag to resolve
+      if (packetParser.operation == 'REC') {
+        final String from = packetParser.nthArgument(1);
+        final String chat = packetParser.nthArgument(0);
+        send(UserGetPacket(from), whenReceived: (p0) {
+          final User resolved =
+              User(p0.arguments[0], p0.arguments[1], base64Decode(p0.arguments[2]));
 
-      final String message = packetParser.arguments.sublist(2).join(' ');
-      switch (chat) {
-        case 'ALL':
-          {
-            previousMessages
-                .add(Message(User(from, 'null', Uint8List.fromList(List.empty())), message));
-            publicMessages.add(previousMessages);
-            break;
-          }
+          previousMessages.add(Message(resolved, chat));
+          publicMessages.add(previousMessages);
+        });
       }
+
+      //Resolve tag
     }
   }
 

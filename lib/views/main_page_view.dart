@@ -23,6 +23,13 @@ class _MainViewState extends State<MainView> {
     return Scaffold(
       body: Row(
         children: <Widget>[
+          StreamBuilder(
+            builder: (context, snapshot) {
+              return const Padding(padding: EdgeInsets.all(5));
+            },
+            stream: Get.find<SocketInterface>().chatController.stream,
+          ),
+
           NavigationRail(
             minWidth: size.width / 10,
             selectedIndex: _selectedIndex,
@@ -34,9 +41,9 @@ class _MainViewState extends State<MainView> {
             labelType: NavigationRailLabelType.selected,
             destinations: const [
               NavigationRailDestination(
-                icon: Icon(Icons.favorite_border),
-                selectedIcon: Icon(Icons.favorite),
-                label: Text('First'),
+                icon: Icon(Icons.account_circle_outlined),
+                selectedIcon: Icon(Icons.account_circle_sharp),
+                label: Text('My account'),
               ),
               NavigationRailDestination(
                 icon: Icon(Icons.bookmark_border),
@@ -85,8 +92,8 @@ class _MainViewState extends State<MainView> {
                 stream: Get.find<SocketInterface>().publicMessages.stream,
               ),
               ElevatedButton(
-                onPressed: () =>
-                    Get.find<SocketInterface>().send(SendChatPacket('Content', receiver: 'myself')),
+                onPressed: () => Get.find<SocketInterface>()
+                    .send(SendChatPacket('Hello World', receiver: 'yugata')),
                 child: const Text('Send message'),
               ),
             ],
