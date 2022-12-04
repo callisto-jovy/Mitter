@@ -93,7 +93,7 @@ class _MainViewState extends State<MainView> {
               ),
               ElevatedButton(
                 onPressed: () => Get.find<SocketInterface>()
-                    .send(SendChatPacket('Hello World', receiver: 'yugata')),
+                    .send(SendChatPacket('Hello World', receiver: '000000')),
                 child: const Text('Send message'),
               ),
             ],

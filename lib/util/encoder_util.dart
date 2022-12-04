@@ -19,7 +19,7 @@ class PacketCapsule {
 
   String get stamp => _tokens[2];
 
-  String nthArgument(final int n) => (n + 3) < _tokens.length ? _tokens[n + 3] : 'N/A';
+  String nthArgument(final int n) => (n + 3) < _tokens.length ? _tokens[n + 3] : '';
 
   List<String> get arguments => _tokens.sublist(3); //Strip the id, operation and the stamp
 

@@ -3,14 +3,14 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:get/get.dart';
 import 'package:it_class_frontend/constants.dart';
 import 'package:it_class_frontend/util/encoder_util.dart';
 import 'package:it_class_frontend/util/packets/packets.dart';
 import 'package:it_class_frontend/util/packets/user_get_packet.dart';
 
 import '../users/user.dart';
-import 'chat.dart';
+import '../chat/chat.dart';
+import '../chat/chat_handler.dart';
 import 'error_resolver.dart';
 import 'message.dart';
 
@@ -18,7 +18,7 @@ class SocketInterface {
   final List<Message> previousMessages = [];
   final StreamController<List<Message>> publicMessages = StreamController<List<Message>>();
   final StreamController<String> errors = StreamController<String>();
-  final StreamController<Chat> chatController = StreamController<Chat>();
+  final StreamController<List<Chat>> chatController = StreamController<List<Chat>>();
 
   //TODO: private messages
 
@@ -79,14 +79,13 @@ class SocketInterface {
         final String from = packetParser.nthArgument(1);
         final String chat = packetParser.nthArgument(0);
         send(UserGetPacket(from), whenReceived: (p0) {
-          final User resolved =
-              User(p0.arguments[0], p0.arguments[1], base64Decode(p0.arguments[2]));
+          final User resolved = User(p0.nthArgument(0), p0.nthArgument(1), p0.nthArgument(2));
 
+          //Add to chat
           previousMessages.add(Message(resolved, chat));
           publicMessages.add(previousMessages);
         });
       }
-
       //Resolve tag
     }
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:it_class_frontend/users/user.dart';
 import 'package:it_class_frontend/util/connection_util.dart';
 import 'package:it_class_frontend/util/string_validator.dart';
 import 'package:it_class_frontend/views/sign_up_view.dart';
@@ -192,10 +193,12 @@ class _LoginViewState extends State<LoginView> {
                       if (!Get.find<SocketInterface>().isConnected) {
                         return;
                       }
-
                       if (_formKey.currentState!.validate()) {
-                        validateLogin(tagController.text, passwordController.text, (value) {
-                          if (value) {
+                        validateLogin(tagController.text, passwordController.text,
+                            (accepted, user) {
+                          if (accepted) {
+                            //Set local user
+                            localUser = user;
                             Navigator.pushReplacement(
                                 context, CupertinoPageRoute(builder: (ctx) => const MainView()));
                           } else {
