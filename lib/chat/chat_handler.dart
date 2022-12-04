@@ -1,8 +1,7 @@
+import 'package:it_class_frontend/constants.dart';
 import 'package:it_class_frontend/util/message.dart';
-import 'package:it_class_frontend/util/packets/user_get_packet.dart';
 
 import 'chat.dart';
-import 'package:it_class_frontend/constants.dart';
 
 class ChatHandler {
   final List<Chat> chats = [];

@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:it_class_frontend/users/user.dart';
 import 'package:it_class_frontend/util/connection_util.dart';
 import 'package:it_class_frontend/util/string_validator.dart';
 import 'package:it_class_frontend/views/sign_up_view.dart';

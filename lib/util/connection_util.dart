@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -8,9 +7,8 @@ import 'package:it_class_frontend/util/encoder_util.dart';
 import 'package:it_class_frontend/util/packets/packets.dart';
 import 'package:it_class_frontend/util/packets/user_get_packet.dart';
 
-import '../users/user.dart';
 import '../chat/chat.dart';
-import '../chat/chat_handler.dart';
+import '../users/user.dart';
 import 'error_resolver.dart';
 import 'message.dart';
 

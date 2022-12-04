@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:it_class_frontend/constants.dart';
-import 'package:it_class_frontend/constants.dart';
 
 import '../util/message.dart';
 

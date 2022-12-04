@@ -8,5 +8,6 @@ class Chat {
   Chat(this._partner);
 
   String get chatName => _partner.username;
+
   User get partner => _partner;
 }
