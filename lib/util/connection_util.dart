@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -6,20 +7,30 @@ import 'package:it_class_frontend/constants.dart';
 import 'package:it_class_frontend/util/encoder_util.dart';
 import 'package:it_class_frontend/util/packets/packets.dart';
 import 'package:it_class_frontend/util/packets/user_get_packet.dart';
+import 'package:rxdart/rxdart.dart';
 
 import '../chat/chat.dart';
 import '../users/user.dart';
 import 'error_resolver.dart';
-import 'message.dart';
+import '../chat/message.dart';
 
 class SocketInterface {
+  /// A list of all the previously incoming messages. Used to update the stream, as the stream only takes in the newest element, we need a list to keep track of every
+  /// previous message
   final List<Message> previousMessages = [];
-  final StreamController<List<Message>> publicMessages = StreamController<List<Message>>();
+
+  ///StreamController used to update all the publicly available messages
+  final StreamController<List<Message>> publicMessages = BehaviorSubject();
+
+  ///StreamController, in which errors may be sent, to display them to the user in the form of an alert bubble
   final StreamController<String> errors = StreamController<String>();
-  final StreamController<List<Chat>> chatController = StreamController<List<Chat>>();
+
+  ///StreamController responsible for all chats
+  final StreamController<List<Chat>> chatController = BehaviorSubject();
 
   //TODO: private messages
-
+  ///Map with an id as the key and a function, which takes in a PacketCapsule-Object, as it's value.
+  ///The map is used to store the packet's callbacks. If i.e. the server directly responds to a sent packet, the referral can be identified.
   final Map<String, Function(PacketCapsule)> callbackRegister = {};
 
   Socket? _socket;
@@ -35,6 +46,7 @@ class SocketInterface {
     });
   }
 
+  ///Method to send any packet and optionally add a callback, when a packet with the same identifier is received
   Future<void> send(final Packet data, {final Function(PacketCapsule)? whenReceived}) async {
     if (isConnected) {
       data.send().then((value) => PacketFormatter.format(value)).then((value) {
@@ -42,17 +54,20 @@ class SocketInterface {
         _socket!.writeln(value[0]);
       });
     } else {
-      previousMessages.add(Message(offlineUser, 'You are offline.'));
-      publicMessages.add(previousMessages);
+      //Display an error to the user.
+      errors.add('You are offline');
     }
   }
 
-  void dataHandler(Uint8List data) {
-    final String input = String.fromCharCodes(data).trim();
+  void dataHandler(List<int> data) {
+    final String input = utf8.decode(data).trim();
     if (!PacketScanner.isValidForm(input)) {
       //Discard input
       return;
     }
+
+    print(input);
+
     final PacketCapsule packetParser = PacketCapsule(PacketScanner.tokenize(input));
     if (!packetParser.isPacketValid()) {
       return;
@@ -75,16 +90,26 @@ class SocketInterface {
     if (packetParser.id == 'CHT') {
       if (packetParser.operation == 'REC') {
         final String from = packetParser.nthArgument(1);
-        final String chat = packetParser.nthArgument(0);
-        send(UserGetPacket(from), whenReceived: (p0) {
-          final User resolved = User(p0.nthArgument(0), p0.nthArgument(1), p0.nthArgument(2));
+        final String message = packetParser.nthArgument(0);
 
-          //Add to chat
-          previousMessages.add(Message(resolved, chat));
-          publicMessages.add(previousMessages);
-        });
+        if(userHandler.containsTag(from)) {
+          //Use the existing data --> Less traffic
+          final User resolved = userHandler.getUser(from);
+          chatHandler.addToChat(Message(resolved, message));
+          //Update all the active chats
+          chatController.add(chatHandler.chats);
+        } else {
+          //Resolve the user
+          send(UserGetPacket(from), whenReceived: (p0) {
+            final User resolved = User(p0.nthArgument(0), p0.nthArgument(1), p0.nthArgument(2));
+            userHandler.addUser(resolved);
+
+            chatHandler.addToChat(Message(resolved, message));
+            //Update all the active chats
+            chatController.add(chatHandler.chats);
+          });
+        }
       }
-      //Resolve tag
     }
   }
 

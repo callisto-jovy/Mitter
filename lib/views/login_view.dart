@@ -9,7 +9,7 @@ import 'package:it_class_frontend/widgets/full_width_elevated_button.dart';
 import '../constants.dart';
 import '../controller/simple_ui_controller.dart';
 import '../util/password_util.dart';
-import 'main_page_view.dart';
+import 'main_view.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
@@ -123,7 +123,7 @@ class _LoginViewState extends State<LoginView> {
             key: _formKey,
             child: Column(
               children: [
-                /// username or Gmail
+                /// tag
                 TextFormField(
                   style: textFormFieldStyle(),
                   decoration: const InputDecoration(
@@ -176,7 +176,7 @@ class _LoginViewState extends State<LoginView> {
                       if (value == null || value.isEmpty) {
                         return 'Please enter a password.';
                       } else if (!value.isPasswordValidLength()) {
-                        return errorMessageInvalidLength('password', lower: 4, upper: 20);
+                        return errorMessageInvalidLength('password', lower: 5);
                       }
                       return null;
                     },
@@ -193,11 +193,8 @@ class _LoginViewState extends State<LoginView> {
                         return;
                       }
                       if (_formKey.currentState!.validate()) {
-                        validateLogin(tagController.text, passwordController.text,
-                            (accepted, user) {
+                        login(tagController.text, passwordController.text, (accepted) {
                           if (accepted) {
-                            //Set local user
-                            localUser = user;
                             Navigator.pushReplacement(
                                 context, CupertinoPageRoute(builder: (ctx) => const MainView()));
                           } else {

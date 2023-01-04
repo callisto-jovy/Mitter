@@ -209,7 +209,7 @@ class _SignUpViewState extends State<SignUpView> {
                       }
 
                       if (_formKey.currentState!.validate()) {
-                        sendLogin(tagController.text, passwordController.text, nameController.text,
+                        signUp(tagController.text, passwordController.text, nameController.text,
                             (value) {
                           if (value) {
                             //navigate to login

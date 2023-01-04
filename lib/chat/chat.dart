@@ -1,5 +1,5 @@
 import 'package:it_class_frontend/users/user.dart';
-import 'package:it_class_frontend/util/message.dart';
+import 'package:it_class_frontend/chat/message.dart';
 
 class Chat {
   final User _partner;
@@ -8,6 +8,8 @@ class Chat {
   Chat(this._partner);
 
   String get chatName => _partner.username;
+
+  String get partnerTag => _partner.tag;
 
   User get partner => _partner;
 }

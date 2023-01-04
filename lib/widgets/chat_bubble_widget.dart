@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:it_class_frontend/constants.dart';
 
-import '../util/message.dart';
+import '../chat/message.dart';
 
 class ChatBubble extends StatelessWidget {
   final Message _message;
@@ -12,7 +12,7 @@ class ChatBubble extends StatelessWidget {
 
   Widget foreignSender(BuildContext context) => Card(
         elevation: 10,
-        color: Theme.of(context).colorScheme.secondary,
+        color: Theme.of(context).colorScheme.surface,
         shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(15),
@@ -26,15 +26,12 @@ class ChatBubble extends StatelessWidget {
                 elevation: 20,
                 shape: const CircleBorder(),
                 clipBehavior: Clip.antiAlias,
-                child: (_message.sender!.profile.isNotEmpty)
+                child: (_message.sender.profile != "null")
                     ? Image.memory(
-                        base64Decode(_message.sender!.profile),
+                        base64Decode(_message.sender.profile),
                         fit: BoxFit.cover,
                       )
-                    : Image.asset(
-                        'images/user.png',
-                        fit: BoxFit.cover,
-                      ),
+                    : const Icon(Icons.supervised_user_circle_rounded),
               ),
             ),
             Expanded(
@@ -44,7 +41,6 @@ class ChatBubble extends StatelessWidget {
                 maxLines: 1,
                 softWrap: false,
                 overflow: TextOverflow.ellipsis,
-                style: textChatBubbleStyle(),
               ),
             ),
           ],
@@ -53,7 +49,7 @@ class ChatBubble extends StatelessWidget {
 
   Widget ownSender(BuildContext context) => Card(
         elevation: 10,
-        color: Theme.of(context).colorScheme.inversePrimary,
+        color: Theme.of(context).colorScheme.primary,
         shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(15),
@@ -67,15 +63,12 @@ class ChatBubble extends StatelessWidget {
                 elevation: 20,
                 shape: const CircleBorder(),
                 clipBehavior: Clip.antiAlias,
-                child: (localUser.profile.isNotEmpty)
+                child: (localUser.profile != "null")
                     ? Image.memory(
                         base64Decode(localUser.profile),
                         fit: BoxFit.cover,
                       )
-                    : Image.asset(
-                        'images/user.png',
-                        fit: BoxFit.cover,
-                      ),
+                    : const Icon(Icons.supervised_user_circle_rounded),
               ),
             ),
             Expanded(
@@ -85,7 +78,6 @@ class ChatBubble extends StatelessWidget {
                 maxLines: 1,
                 softWrap: false,
                 overflow: TextOverflow.ellipsis,
-                style: textChatBubbleStyle(),
               ),
             ),
           ],
