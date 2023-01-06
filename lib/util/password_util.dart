@@ -1,11 +1,8 @@
 import 'package:crypto/crypto.dart';
 import 'package:get/get.dart';
-import 'package:it_class_frontend/chat/chat.dart';
 import 'package:it_class_frontend/constants.dart';
 import 'package:it_class_frontend/util/connection_util.dart';
-import 'package:it_class_frontend/util/encoder_util.dart';
 import 'package:it_class_frontend/util/packets/packets.dart';
-import 'package:it_class_frontend/util/packets/user_get_packet.dart';
 import 'package:it_class_frontend/util/security_util.dart';
 
 import '../users/user.dart';
@@ -19,18 +16,13 @@ void login(final String tag, final String password, Function(bool) accepted) asy
   final String generatedHash =
       hashing.generateBase64Key(tag + password, Salt.generate(salt_length), key_rounds, key_length);
   //Send off to server to validate and register callback
-  Get.find<SocketInterface>().send(SignInPacket(tag, generatedHash),
-      whenReceived: (PacketCapsule value) {
-    if (value.operation == 'COMPLETE') {
-      //Update all information
-      localUser = User(value.nthArgument(0), value.nthArgument(1), value.nthArgument(2));
-      final List<String> previousPartners = value.extrapolateList(3);
-      accepted.call(true);
 
-      chatHandler.addPreviousChats(previousPartners);
-    } else {
-      accepted.call(false);
+  Get.find<SocketInterface>().send(SignInPacket(tag, generatedHash)).then((value) {
+    if (value.operation == 'COMPLETE') {
+      localUser = User.fromJson(value.nthArgument(0));
+      chatHandler.addPreviousChats(List<String>.from(value.nthArgument(1)));
     }
+    accepted.call(value.operation == 'COMPLETE');
   });
 }
 
@@ -39,6 +31,7 @@ void signUp(
   final String generatedHash =
       hashing.generateBase64Key(tag + password, Salt.generate(salt_length), key_rounds, key_length);
   //Send data
-  Get.find<SocketInterface>().send(SignUpPacket(username, tag, generatedHash),
-      whenReceived: (PacketCapsule value) => signedUp.call(value.operation == 'CREATED'));
+  Get.find<SocketInterface>()
+      .send(SignUpPacket(username, tag, generatedHash))
+      .then((value) => signedUp.call(value.operation == 'CREATED'));
 }

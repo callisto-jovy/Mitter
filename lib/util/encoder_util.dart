@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'id_util.dart';
 
 const List<String> validPackets = [
@@ -8,21 +10,27 @@ const List<String> validPackets = [
   'ERR',
 ];
 
+const String keyId = "id";
+const String keyOperation = "op";
+const String keyStamp = "stamp";
+const String keyArguments = "args";
+
 class PacketCapsule {
-  final List<String> _tokens;
+  final Map<String, dynamic> _internalJson;
 
-  PacketCapsule(this._tokens);
+  PacketCapsule(this._internalJson);
 
-  String get id => _tokens.first;
+  String get id => _internalJson[keyId];
 
-  String get operation => _tokens[1];
+  String get operation => _internalJson[keyOperation];
 
-  String get stamp => _tokens[2];
+  String get stamp => _internalJson[keyStamp];
 
-  String nthArgument(final int n) => (n + 3) < _tokens.length ? _tokens[n + 3] : '';
+  dynamic nthArgument(final int n) => (n) < arguments.length ? arguments[n] : '';
 
-  List<String> get arguments => _tokens.sublist(3); //Strip the id, operation and the stamp
+  List<dynamic> get arguments => _internalJson[keyArguments]; //Strip the id, operation and the stamp
 
+  /*
   List<String> extrapolateList(final int n) {
     final String input = nthArgument(n);
     if (!(input.startsWith('[') && input.endsWith(']'))) {
@@ -51,16 +59,19 @@ class PacketCapsule {
     return items;
   }
 
+   */
+
   bool isPacketValid() =>
-      _tokens.isNotEmpty &&
-      _tokens.length >= 3 &&
-      validPackets.contains(_tokens.first) &&
-      _tokens[1].isNotEmpty;
+      _internalJson.isNotEmpty &&
+      _internalJson.length >= 3 &&
+      validPackets.contains(id);
 }
 
 class PacketScanner {
-  static bool isValidForm(final String input) => input.isNotEmpty && input.split(';').isNotEmpty;
+  static bool isValidForm(final String? input) => input != null && input.isNotEmpty;
 
+/*
+  Old method, did not work, as it caused problems when communicating...
   static List<String> tokenize(final String input) {
     List<String> tokens = [];
 
@@ -83,10 +94,13 @@ class PacketScanner {
     }
     return tokens;
   }
+
+   */
 }
 
 class PacketFormatter {
   /*
+  DEPRECATED
   A packet is formatted the following way: XXX;XXX;0-9+;X0;X1;Xn
   This means: The packet's general id, the packet's "arg"; the operation to perform,
   the response code - which may be listened to and always has to be returned! - followed by a list of arguments.
@@ -97,10 +111,8 @@ class PacketFormatter {
    */
 
   static List<String> format(final Map<String, dynamic> map) {
-    final String arguments =
-        map['arguments'].map((String s) => s.replaceAll(r";", "\\;")).join(";");
-
     final String stamp = newStamp;
-    return ['${map['id']};${map['arg']};$stamp;$arguments', stamp];
+    map[keyStamp] = stamp;
+    return [jsonEncode(map), stamp];
   }
 }

@@ -12,8 +12,8 @@ class SendChatPacket extends Packet {
 
   @override
   Future<Map<String, dynamic>> send() async => {
-        'id': 'CHT',
-        'arg': 'WRT',
-        'arguments': [receiver!, _content],
+        keyId: 'CHT',
+        keyOperation: 'WRT',
+        keyArguments: [receiver!, _content],
       };
 }

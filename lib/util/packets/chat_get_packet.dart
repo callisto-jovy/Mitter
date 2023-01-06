@@ -1,6 +1,7 @@
 import 'package:it_class_frontend/util/encoder_util.dart';
 import 'package:it_class_frontend/util/packets/packet.dart';
 
+
 class ChatGetPacket extends Packet {
 
   final String _tag;
@@ -15,8 +16,8 @@ class ChatGetPacket extends Packet {
 
   @override
   Future<Map<String, dynamic>> send() async => {
-    'id': 'CHT',
-    'arg': 'GET',
-    'arguments': [_tag]
+    keyId: 'CHT',
+    keyOperation: 'GET',
+    keyArguments: [_tag]
   };
 }

@@ -1,19 +1,21 @@
+import 'dart:ui';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:it_class_frontend/constants.dart';
 import 'package:it_class_frontend/util/connection_util.dart';
-import 'package:it_class_frontend/util/packets/send_chat_packet.dart';
 import 'package:it_class_frontend/widgets/chat_bubble_widget.dart';
-import 'package:it_class_frontend/widgets/message_send_text_field.dart';
+import 'package:it_class_frontend/widgets/message_to_dialog.dart';
 
-class MitterMain extends StatefulWidget {
-  const MitterMain({Key? key}) : super(key: key);
+class HomeView extends StatefulWidget {
+  const HomeView({Key? key}) : super(key: key);
 
   @override
-  State<MitterMain> createState() => _MitterMainState();
+  State<HomeView> createState() => _HomeViewState();
 }
 
-class _MitterMainState extends State<MitterMain> {
+class _HomeViewState extends State<HomeView> {
   @override
   void dispose() {
     _scrollController.dispose();
@@ -65,8 +67,44 @@ class _MitterMainState extends State<MitterMain> {
         SizedBox(
           height: size.height / 1.5,
         ),
-        MessageSendField((String text) =>
-            Get.find<SocketInterface>().send(SendChatPacket(text, receiver: '000000'))),
+        Flexible(
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            alignment: Alignment.bottomRight,
+            child: ElevatedButton.icon(
+              onPressed: () => showGeneralDialog(
+                barrierDismissible: true,
+                barrierLabel: '',
+                barrierColor: Colors.black38,
+                transitionDuration: const Duration(milliseconds: 500),
+                pageBuilder: (ctx, anim1, anim2) => MessageToDialog(),
+                transitionBuilder: (ctx, anim1, anim2, child) => BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 4 * anim1.value, sigmaY: 4 * anim1.value),
+                  child: FadeTransition(
+                    opacity: anim1,
+                    child: child,
+                  ),
+                ),
+                context: context,
+              ),
+
+              /*showDialog(
+                  context: context,
+                  barrierColor: Colors.black.withOpacity(0.5),
+                  builder: (context) => const Material(child: SearchTagDialog())),
+
+     */
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Theme.of(context).colorScheme.secondary),
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                ),
+              ),
+              icon: const Icon(Icons.search_sharp),
+              label: const Text("Add friend"),
+            ),
+          ),
+        )
       ],
     );
   }

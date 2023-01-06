@@ -15,7 +15,6 @@ class FullWidthElevatedButton extends StatelessWidget {
       width: double.infinity,
       height: height,
       child: ElevatedButton(
-        autofocus: true,
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all(Theme.of(context).colorScheme.secondary),
           shape: MaterialStateProperty.all(

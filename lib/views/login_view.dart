@@ -198,7 +198,7 @@ class _LoginViewState extends State<LoginView> {
                             Navigator.pushReplacement(
                                 context, CupertinoPageRoute(builder: (ctx) => const MainView()));
                           } else {
-                            simpleUIController.isPasswordInvalid.toggle();
+                            simpleUIController.isPasswordInvalidActive();
                           }
                         });
                       }

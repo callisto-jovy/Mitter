@@ -10,9 +10,9 @@ class SignUpPacket extends Packet {
 
   @override
   Future<Map<String, dynamic>> send() async => {
-        "id": "ACC",
-        "arg": "CRT",
-        "arguments": [
+        keyId: "ACC",
+        keyOperation: "CRT",
+        keyArguments: [
           _username,
           _tag,
           _password,

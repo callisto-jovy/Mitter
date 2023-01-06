@@ -1,18 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:it_class_frontend/constants.dart';
 import 'package:it_class_frontend/util/encoder_util.dart';
 import 'package:it_class_frontend/util/packets/packets.dart';
+import 'package:it_class_frontend/util/packets/send_chat_packet.dart';
 import 'package:it_class_frontend/util/packets/user_get_packet.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../chat/chat.dart';
+import '../chat/message.dart';
 import '../users/user.dart';
 import 'error_resolver.dart';
-import '../chat/message.dart';
 
 class SocketInterface {
   /// A list of all the previously incoming messages. Used to update the stream, as the stream only takes in the newest element, we need a list to keep track of every
@@ -23,15 +23,14 @@ class SocketInterface {
   final StreamController<List<Message>> publicMessages = BehaviorSubject();
 
   ///StreamController, in which errors may be sent, to display them to the user in the form of an alert bubble
-  final StreamController<String> errors = StreamController<String>();
+  final StreamController<String> errors = BehaviorSubject<String>();
 
   ///StreamController responsible for all chats
   final StreamController<List<Chat>> chatController = BehaviorSubject();
 
-  //TODO: private messages
   ///Map with an id as the key and a function, which takes in a PacketCapsule-Object, as it's value.
   ///The map is used to store the packet's callbacks. If i.e. the server directly responds to a sent packet, the referral can be identified.
-  final Map<String, Function(PacketCapsule)> callbackRegister = {};
+  final Map<String, Completer> callbackRegister = {};
 
   Socket? _socket;
 
@@ -46,70 +45,117 @@ class SocketInterface {
     });
   }
 
-  ///Method to send any packet and optionally add a callback, when a packet with the same identifier is received
-  Future<void> send(final Packet data, {final Function(PacketCapsule)? whenReceived}) async {
-    if (isConnected) {
-      data.send().then((value) => PacketFormatter.format(value)).then((value) {
-        if (whenReceived != null) callbackRegister[value[1]] = whenReceived;
-        _socket!.writeln(value[0]);
-      });
-    } else {
-      //Display an error to the user.
-      errors.add('You are offline');
+  ///Method to send any packet. [Returns] a future that is completed when a response to the exact packet is sent.
+  Future<PacketCapsule> send(final Packet data) async {
+    if (!isConnected) {
+      errors.add('You are offline.');
+      return Future.error('The socket is not connected!');
     }
+    final Completer<PacketCapsule> completer = Completer();
+    data.send().then((value) => PacketFormatter.format(value)).then((value) {
+      callbackRegister[value[1]] = completer;
+      _socket!.writeln(value[0]);
+    });
+
+    return completer.future;
   }
 
   void dataHandler(List<int> data) {
-    final String input = utf8.decode(data).trim();
-    if (!PacketScanner.isValidForm(input)) {
-      //Discard input
-      return;
-    }
+    final List<String> input = utf8.decode(data).trim().split("\n");
+    //Idk why this is necessary...
+    for (String value in input) {
+      if (!PacketScanner.isValidForm(value)) {
+        //Discard input
+        return;
+      }
 
-    print(input);
+      print(value);
 
-    final PacketCapsule packetParser = PacketCapsule(PacketScanner.tokenize(input));
-    if (!packetParser.isPacketValid()) {
-      return;
-    }
+      final PacketCapsule packetParser = PacketCapsule(jsonDecode(value));
+      if (!packetParser.isPacketValid()) {
+        return;
+      }
 
-    //Call callback to packet
-    callbackRegister[packetParser.stamp]?.call(packetParser);
-    //Catch error
-    if (packetParser.id == 'ERR') {
-      //Resolve error from its code
-      final int errorCode = int.parse(packetParser.operation);
-      final ErrorType errorType =
-          ErrorType.values.where((element) => element.code == errorCode).first;
-      errors.add(errorType.description);
-      print(errorType.description);
-      return;
-    }
+      if (callbackRegister.containsKey(packetParser.stamp)) {
+        //Complete the future.
+        callbackRegister[packetParser.stamp]?.complete(packetParser);
+        callbackRegister.remove(packetParser.stamp);
+      }
 
-    //Handle incoming chat
-    if (packetParser.id == 'CHT') {
-      if (packetParser.operation == 'REC') {
-        final String from = packetParser.nthArgument(1);
-        final String message = packetParser.nthArgument(0);
+      //Catch error
+      if (packetParser.id == 'ERR') {
+        //Resolve error from its code
+        final int errorCode = int.parse(packetParser.operation);
+        final ErrorType errorType =
+            ErrorType.values.where((element) => element.code == errorCode).first;
+        errors.add(errorType.description);
+        print(errorType.description);
+        return;
+      }
 
-        if(userHandler.containsTag(from)) {
-          //Use the existing data --> Less traffic
-          final User resolved = userHandler.getUser(from);
-          chatHandler.addToChat(Message(resolved, message));
-          //Update all the active chats
-          chatController.add(chatHandler.chats);
-        } else {
-          //Resolve the user
-          send(UserGetPacket(from), whenReceived: (p0) {
-            final User resolved = User(p0.nthArgument(0), p0.nthArgument(1), p0.nthArgument(2));
-            userHandler.addUser(resolved);
+      //Handle incoming chat
+      if (packetParser.id == 'CHT') {
+        if (packetParser.operation == 'REC') {
+          final String message = packetParser.nthArgument(0);
+          final String sender = packetParser.nthArgument(1);
+          final String receiver = packetParser.nthArgument(2);
+
+          final String tag = sender == localUser.tag ? receiver : sender;
+
+          //The user is already known..
+          if (userHandler.containsTag(tag)) {
+            //Use the existing data --> Less traffic
+            final User resolved = userHandler.getUser(tag);
 
             chatHandler.addToChat(Message(resolved, message));
             //Update all the active chats
             chatController.add(chatHandler.chats);
-          });
+          } else {
+            send(UserGetPacket(tag))
+                .then((value) => User.fromJson(value.nthArgument(0)))
+                .then((value) {
+              userHandler.addUser(value);
+              chatHandler.addToChat(Message(value, message));
+              chatController.add(chatHandler.chats);
+            });
+          }
         }
       }
+    }
+  }
+
+  /*
+  Future<User> resolveUnknownUser(final String userTag) async {
+    send(UserGetPacket(userTag), whenReceived: (p0) {
+      return
+    },);
+  }
+
+   */
+
+  Future<void> sendUserChat(final String receiver, final String message) async {
+    Message? msg = await send(SendChatPacket(message, receiver: receiver)).then((value) {
+      if (value.operation == 'SUCCESS' && receiver != localUser.tag) {
+        //Open a new chat, request user information...
+        return Message(localUser, message);
+      }
+    }).onError((error, stackTrace) {
+      errors.add('Error occurred in future: ${error ?? 'unknown'}');
+      return null;
+    });
+
+    if (msg != null) {
+      send(UserGetPacket(receiver)).then((value) {
+        print(value);
+        final User resolved =
+            User(value.nthArgument(0), value.nthArgument(1), value.nthArgument(2));
+        userHandler.addUser(resolved);
+
+        final Chat chat = Chat(resolved);
+        chat.messages.add(msg);
+        chatHandler.chats.add(chat);
+        chatController.add(chatHandler.chats);
+      });
     }
   }
 

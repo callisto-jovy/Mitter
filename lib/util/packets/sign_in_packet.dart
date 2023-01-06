@@ -9,9 +9,9 @@ class SignInPacket extends Packet {
 
   @override
   Future<Map<String, dynamic>> send() async => {
-        'id': "ACC",
-        "arg": "LIN",
-        "arguments": [
+        keyId: "ACC",
+        keyOperation: "LIN",
+        keyArguments: [
           _tag,
           _password,
         ]

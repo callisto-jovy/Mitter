@@ -12,4 +12,8 @@ class Chat {
   String get partnerTag => _partner.tag;
 
   User get partner => _partner;
+
+
+
+
 }

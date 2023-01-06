@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:it_class_frontend/util/connection_util.dart';
@@ -20,10 +21,37 @@ class _MainViewState extends State<MainView> {
 
   final PageController _pageController = PageController();
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   void dispose() {
     _pageController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Get.find<SocketInterface>().errors.stream.listen((event) {
+        if (_scaffoldKey.currentContext != null) {
+          ScaffoldMessenger.of(_scaffoldKey.currentContext!).showSnackBar(SnackBar(
+            elevation: 0,
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.transparent,
+            content: AwesomeSnackbarContent(
+              title: 'On Snap!',
+              message:
+                  'This is an example error message that will be shown in the body of snackbar!',
+
+              /// change contentType to ContentType.success, ContentType.warning or ContentType.help for variants
+              contentType: ContentType.failure,
+            ),
+          ));
+        }
+      });
+    });
+
+    super.initState();
   }
 
   Widget navigationRail(Size size) => StreamBuilder(
@@ -77,21 +105,21 @@ class _MainViewState extends State<MainView> {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     return Scaffold(
+      key: _scaffoldKey,
       body: Row(
         children: <Widget>[
           SingleChildScrollView(
               child: ConstrainedBox(
                   constraints: BoxConstraints(minHeight: size.height),
                   child: IntrinsicHeight(child: navigationRail(size)))),
-          const VerticalDivider(),
           // This is the main content.
           Expanded(
               child: PageView(
             controller: _pageController,
             scrollDirection: Axis.horizontal,
             children: <Widget>[
-              const MitterMain(), //TODO: Account
-              const MitterMain(),
+              const HomeView(), //TODO: Account
+              const HomeView(),
               ChatView(_selectedChat),
             ],
           )),

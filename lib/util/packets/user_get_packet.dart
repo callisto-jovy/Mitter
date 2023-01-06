@@ -14,8 +14,8 @@ class UserGetPacket extends Packet {
 
   @override
   Future<Map<String, dynamic>> send() async => {
-        'id': 'USR',
-        'arg': 'GET',
-        'arguments': [_tag]
+        keyId: 'USR',
+        keyOperation: 'GET',
+        keyArguments: [_tag]
       };
 }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:it_class_frontend/chat/chat.dart';
-import 'package:it_class_frontend/util/connection_util.dart';
 import 'package:it_class_frontend/chat/message.dart';
+import 'package:it_class_frontend/util/connection_util.dart';
 import 'package:it_class_frontend/widgets/chat_bubble_widget.dart';
 
 import '../constants.dart';
@@ -61,16 +61,12 @@ class _ChatViewState extends State<ChatView> {
         ),
         MessageSendField((String text) {
           final Chat chat = chatHandler.chats[widget._chatIndex];
-          Get.find<SocketInterface>().send(
-            SendChatPacket(text, receiver: chat.partnerTag),
-            whenReceived: (p0) {
-              if (p0.operation == 'SUCCESS' && chat.partnerTag != localUser.tag) {
-                final Message msg = Message(localUser, text);
-                chat.messages.add(msg);
-                Get.find<SocketInterface>().chatController.add(chatHandler.chats);
-              }
-            },
-          );
+
+          Get.find<SocketInterface>()
+              .send(SendChatPacket(text, receiver: chat.partnerTag))
+              .then((value) => value.operation == 'SUCCESS' && chat.partnerTag != localUser.tag)
+              .then((value) => value ? chat.messages.add(Message(localUser, text)) : null) //Append the message
+              .then((value) => Get.find<SocketInterface>().chatController.add(chatHandler.chats)); //Update the chats.
         }),
       ],
     );

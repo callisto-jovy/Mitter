@@ -5,7 +5,6 @@ import 'package:it_class_frontend/util/packets/chat_get_packet.dart';
 import '../constants.dart';
 import '../users/user.dart';
 import '../util/connection_util.dart';
-import '../util/encoder_util.dart';
 import '../util/packets/user_get_packet.dart';
 import 'chat.dart';
 
@@ -25,20 +24,17 @@ class ChatHandler {
     }
   }
 
-  void addPreviousChats(final List<String> tags) {
+  Future<void> addPreviousChats(final List<String> tags) async {
     for (final String element in tags) {
-      Get.find<SocketInterface>().send(UserGetPacket(element), whenReceived: (PacketCapsule value) {
-        final User user = User(value.nthArgument(0), value.nthArgument(1), value.nthArgument(2));
+      final SocketInterface si = Get.find<SocketInterface>();
+      si.send(UserGetPacket(element)).then((value) {
+        final User user = User.fromJson(value.nthArgument(0));
         userHandler.addUser(user);
 
         final Chat chat = Chat(user);
         chats.add(chat);
         Get.find<SocketInterface>().chatController.add(chats);
-
-      });
-
-      //Request chat content between users:
-      Get.find<SocketInterface>().send(ChatGetPacket(element));
+      }).then((value) => si.send(ChatGetPacket(element)));
     }
   }
 
