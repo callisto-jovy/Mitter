@@ -2,12 +2,24 @@ import 'package:flutter/material.dart';
 
 import '../constants.dart';
 
-class MessageSendField extends StatelessWidget {
+class MessageSendField extends StatefulWidget {
   final Function(String) _onPressed;
 
   MessageSendField(this._onPressed, {Key? key}) : super(key: key);
 
+  @override
+  State<MessageSendField> createState() => _MessageSendFieldState();
+}
+
+class _MessageSendFieldState extends State<MessageSendField> {
   final TextEditingController _textEditingController = TextEditingController();
+
+
+  @override
+  void dispose() {
+    _textEditingController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +40,8 @@ class MessageSendField extends StatelessWidget {
               icon: const Icon(Icons.send),
               onPressed: () {
                 if (_textEditingController.text.isNotEmpty) {
-                  _onPressed.call(_textEditingController.text);
+                  widget._onPressed.call(_textEditingController.text);
+                  _textEditingController.clear();
                 }
               }),
           filled: true,
@@ -38,6 +51,12 @@ class MessageSendField extends StatelessWidget {
             return 'Your message may not be empty';
           }
           return null;
+        },
+        onFieldSubmitted: (value) {
+          if (_textEditingController.text.isNotEmpty) {
+            widget._onPressed.call(_textEditingController.text);
+            _textEditingController.clear();
+          }
         },
       ),
     );

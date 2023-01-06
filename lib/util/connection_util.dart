@@ -69,8 +69,6 @@ class SocketInterface {
         return;
       }
 
-      print(value);
-
       final PacketCapsule packetParser = PacketCapsule(jsonDecode(value));
       if (!packetParser.isPacketValid()) {
         return;
@@ -100,22 +98,24 @@ class SocketInterface {
           final String sender = packetParser.nthArgument(1);
           final String receiver = packetParser.nthArgument(2);
 
-          final String tag = sender == localUser.tag ? receiver : sender;
+          final String partnerTag = sender == localUser.tag ? receiver : sender;
 
-          //The user is already known..
-          if (userHandler.containsTag(tag)) {
+          if (userHandler.containsTag(partnerTag)) {
             //Use the existing data --> Less traffic
-            final User resolved = userHandler.getUser(tag);
+            final User partnerUser = userHandler.getUser(partnerTag);
+            final User senderUser = sender == localUser.tag ? localUser : partnerUser;
 
-            chatHandler.addToChat(Message(resolved, message));
-            //Update all the active chats
+            chatHandler.addToChat(partnerUser, Message(senderUser, message));
+            //Update all the active chat
             chatController.add(chatHandler.chats);
           } else {
-            send(UserGetPacket(tag))
+            //Resolve the tag and continue
+            send(UserGetPacket(partnerTag))
                 .then((value) => User.fromJson(value.nthArgument(0)))
-                .then((value) {
-              userHandler.addUser(value);
-              chatHandler.addToChat(Message(value, message));
+                .then((partnerUser) {
+              userHandler.addUser(partnerUser);
+              final User senderUser = sender == localUser.tag ? localUser : partnerUser;
+              chatHandler.addToChat(partnerUser, Message(senderUser, message));
               chatController.add(chatHandler.chats);
             });
           }
@@ -124,14 +124,9 @@ class SocketInterface {
     }
   }
 
-  /*
   Future<User> resolveUnknownUser(final String userTag) async {
-    send(UserGetPacket(userTag), whenReceived: (p0) {
-      return
-    },);
+    return send(UserGetPacket(userTag)).then((value) => User.fromJson(value.nthArgument(0)));
   }
-
-   */
 
   Future<void> sendUserChat(final String receiver, final String message) async {
     Message? msg = await send(SendChatPacket(message, receiver: receiver)).then((value) {
@@ -146,7 +141,6 @@ class SocketInterface {
 
     if (msg != null) {
       send(UserGetPacket(receiver)).then((value) {
-        print(value);
         final User resolved =
             User(value.nthArgument(0), value.nthArgument(1), value.nthArgument(2));
         userHandler.addUser(resolved);

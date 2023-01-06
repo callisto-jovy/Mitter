@@ -16,17 +16,17 @@ class SignUpView extends StatefulWidget {
 }
 
 class _SignUpViewState extends State<SignUpView> {
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController tagController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _tagController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
-  final _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
-    nameController.dispose();
-    tagController.dispose();
-    passwordController.dispose();
+    _usernameController.dispose();
+    _tagController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -117,7 +117,7 @@ class _SignUpViewState extends State<SignUpView> {
                       borderRadius: BorderRadius.all(Radius.circular(15)),
                     ),
                   ),
-                  controller: nameController,
+                  controller: _usernameController,
                   // The validator receives the text that the user has entered.
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -134,7 +134,7 @@ class _SignUpViewState extends State<SignUpView> {
                 // Tag
                 TextFormField(
                   style: textFormFieldStyle(),
-                  controller: tagController,
+                  controller: _tagController,
                   decoration: const InputDecoration(
                     prefixIcon: Icon(Icons.tag_rounded),
                     hintText: 'Tag',
@@ -158,7 +158,7 @@ class _SignUpViewState extends State<SignUpView> {
                 Obx(
                   () => TextFormField(
                     //style: textFormFieldStyle(),
-                    controller: passwordController,
+                    controller: _passwordController,
                     obscureText: simpleUIController.isObscure.value,
                     decoration: InputDecoration(
                       errorStyle: textFormErrorStyle(),
@@ -209,15 +209,15 @@ class _SignUpViewState extends State<SignUpView> {
                       }
 
                       if (_formKey.currentState!.validate()) {
-                        signUp(tagController.text, passwordController.text, nameController.text,
+                        signUp(_tagController.text, _passwordController.text, _usernameController.text,
                             (value) {
                           if (value) {
                             //navigate to login
                             Navigator.pop(context);
 
-                            nameController.clear();
-                            tagController.clear();
-                            passwordController.clear();
+                            _usernameController.clear();
+                            _tagController.clear();
+                            _passwordController.clear();
                             _formKey.currentState?.reset();
 
                             simpleUIController.isObscure.value = true;
@@ -238,9 +238,9 @@ class _SignUpViewState extends State<SignUpView> {
                   onTap: () {
                     Navigator.pop(context);
 
-                    nameController.clear();
-                    tagController.clear();
-                    passwordController.clear();
+                    _usernameController.clear();
+                    _tagController.clear();
+                    _passwordController.clear();
                     _formKey.currentState?.reset();
 
                     simpleUIController.isObscure.value = true;

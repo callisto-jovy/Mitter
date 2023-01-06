@@ -40,9 +40,7 @@ class _MainViewState extends State<MainView> {
             backgroundColor: Colors.transparent,
             content: AwesomeSnackbarContent(
               title: 'On Snap!',
-              message:
-                  'This is an example error message that will be shown in the body of snackbar!',
-
+              message: event,
               /// change contentType to ContentType.success, ContentType.warning or ContentType.help for variants
               contentType: ContentType.failure,
             ),

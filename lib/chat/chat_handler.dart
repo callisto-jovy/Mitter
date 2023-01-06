@@ -11,14 +11,14 @@ import 'chat.dart';
 class ChatHandler {
   final List<Chat> chats = [];
 
-  void addToChat(final Message message) {
-    if (chats.any((element) => element.partner.tag == message.sender.tag)) {
+  void addToChat(final User partner, final Message message) {
+    if (chats.any((element) => element.partner.tag == partner.tag)) {
       chats
-          .firstWhere((element) => message.sender.tag == element.partner.tag)
+          .firstWhere((element) => partner.tag == element.partner.tag)
           .messages
           .add(message);
     } else {
-      final Chat chat = Chat(message.sender);
+      final Chat chat = Chat(partner);
       chat.messages.add(message);
       chats.add(chat);
     }
