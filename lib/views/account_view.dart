@@ -107,9 +107,12 @@ class _AccountViewState extends State<AccountView> {
             ),
             SettingsTile.navigation(
               title: const Text('Logout'),
-              onPressed: (context) => Get.find<SocketInterface>().send(LogoutPacket()).then(
-                  (value) => Navigator
-                      .pushReplacement(context, CupertinoPageRoute(builder: (ctx) => const LoginView()))),
+              onPressed: (context) =>
+                  Get.find<SocketInterface>().send(LogoutPacket()).then((value) {
+                Navigator.pushReplacement(
+                    context, CupertinoPageRoute(builder: (ctx) => const LoginView()));
+                logout();
+              }),
               leading: const Icon(Icons.logout_sharp),
             )
           ],

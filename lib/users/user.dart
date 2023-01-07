@@ -14,5 +14,5 @@ class User {
 
   String get username => _username;
 
-  String get initials => username.contains(' ') ? username.split(' ').getRange(0, 1).join() : username.substring(0, 1).toUpperCase();
+  String get initials => username.contains(' ') ? username.split(' ').getRange(0, 2).map((e) => e[0]).join() : username.substring(0, 1).toUpperCase();
 }

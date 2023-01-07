@@ -13,10 +13,7 @@ class ChatHandler {
 
   void addToChat(final User partner, final Message message) {
     if (chats.any((element) => element.partner.tag == partner.tag)) {
-      chats
-          .firstWhere((element) => partner.tag == element.partner.tag)
-          .messages
-          .add(message);
+      chats.firstWhere((element) => partner.tag == element.partner.tag).messages.add(message);
     } else {
       final Chat chat = Chat(partner);
       chat.messages.add(message);
@@ -27,14 +24,16 @@ class ChatHandler {
   Future<void> addPreviousChats(final List<String> tags) async {
     for (final String element in tags) {
       final SocketInterface si = Get.find<SocketInterface>();
-      si.send(UserGetPacket(element)).then((value) {
+      await si.send(UserGetPacket(element)).then((value) {
         final User user = User.fromJson(value.nthArgument(0));
         userHandler.addUser(user);
 
         final Chat chat = Chat(user);
         chats.add(chat);
         Get.find<SocketInterface>().chatController.add(chats);
-      }).then((value) => si.send(ChatGetPacket(element)));
+      });
+
+      await si.send(ChatGetPacket(element));
     }
   }
 

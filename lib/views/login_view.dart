@@ -189,9 +189,6 @@ class _LoginViewState extends State<LoginView> {
                 /// Login Button
                 FullWidthElevatedButton(
                     onPressed: () {
-                      if (!Get.find<SocketInterface>().isConnected) {
-                        return;
-                      }
                       if (_formKey.currentState!.validate()) {
                         login(tagController.text, passwordController.text, (accepted) {
                           if (accepted) {

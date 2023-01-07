@@ -11,6 +11,12 @@ late User localUser;
 ChatHandler chatHandler = ChatHandler();
 UserHandler userHandler = UserHandler();
 
+void logout() {
+  chatHandler.chats.clear();
+  userHandler.users.clear();
+}
+
+
 Widget circleAvatar(User user, {double? radius}) => user.profile == 'null'
     ? UserAvatar(
         radius: radius,

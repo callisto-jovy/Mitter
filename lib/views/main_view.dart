@@ -76,7 +76,6 @@ class _MainViewState extends State<MainView> {
                 ...?snapshot.data
                     ?.map((e) => NavigationRailDestination(
                           icon: circleAvatar(e.partner),
-                          //    icon: ,
                           label: Text(e.chatName),
                         ))
                     .toList(),

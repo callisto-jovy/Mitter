@@ -61,51 +61,37 @@ class SocketInterface {
   }
 
   void listen() async {
-    final Stream<String> serverSocket = _socket!.asBroadcastStream().map(String.fromCharCodes);
+    const terminator = '___\n';
+    final List<int> terminatorSequence = utf8.encode(terminator);
 
-    const terminator = 'message::end';
+    final List<int> bytesRead = [];
 
-/*
-    // Reduce with a condition [combineWhile]
-    serverSocket
-        .reduceWhile(
-          combine: (previous, element) => previous + element,
-          combineWhile: (element) => !element.endsWith(terminator),
-        )
-        .then((value) => value.replaceRange(
-              value.length - terminator.length,
-              value.length,
-              '',
-            ))
-        .then(handleData);
+    await for (List<int> packet in _socket!) {
+      //Read bytes until terminator
+      final Iterator<int> iter = packet.iterator;
+      int terminatorIndex = 0;
+      //Move through the bytes, until the terminator sequence is found
+      while (iter.moveNext()) {
+        final int curr = iter.current;
+        //If the the current byte matches the corresponding byte (trying to find a sequence), move to the next index
+        if (terminatorSequence[terminatorIndex] == curr) {
+          terminatorIndex++; //move to the next index
+        } else {
+          terminatorIndex = 0; //Reset the index, no sequence found
+        }
 
-
- */
-
-    String message = '';
-
-    await for (String packet in serverSocket) {
-      // If you are using [message] as a List of bytes (Uint8List):
-      // message = [...Uint8List.fromList(message), ...Uint8List(packet)]
-      message += packet;
-
-      // Do not compare directly packet == kMessageEof
-      // cause it can be 'broken' into multiple packets:
-      // -> 00000 (packet 1)
-      // -> 00000 (packet 2)
-      // -> 00mes (packet 3)
-      // -> sage: (packet 4)
-      // -> end   (packet 5)
-      if (message.endsWith(terminator)) {
-        // remove termination string
-        message = message.replaceRange(
-          message.length - terminator.length,
-          message.length,
-          '',
-        );
-        handleData(message);
-        message = '';
+        bytesRead.add(curr);
+        //the terminator sequence way fully found, the packet is complete
+        if (terminatorIndex == terminatorSequence.length) {
+          //packet terminated
+          final String message =
+          utf8.decode(bytesRead.sublist(0, bytesRead.length - terminatorSequence.length));
+          handleData(message); //Send off to handle the data
+          bytesRead.clear(); //Clear the read bytes, a new packet has to be read from the buffer(s)
+          terminatorIndex = 0; //Reset the terminator index
+        }
       }
+
     }
   }
 
