@@ -1,11 +1,12 @@
 import 'dart:convert';
 
-import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:it_class_frontend/constants.dart';
 import 'package:it_class_frontend/util/connection_util.dart';
 import 'package:it_class_frontend/views/account_view.dart';
 import 'package:it_class_frontend/views/chat_view.dart';
+import 'package:it_class_frontend/widgets/snackbars.dart';
 
 import 'home_view.dart';
 
@@ -33,20 +34,9 @@ class _MainViewState extends State<MainView> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Get.find<SocketInterface>().errors.stream.listen((event) {
+      Get.find<SocketInterface>().errors.stream.listen((error) {
         if (_scaffoldKey.currentContext != null) {
-          ScaffoldMessenger.of(_scaffoldKey.currentContext!).showSnackBar(SnackBar(
-            elevation: 0,
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Colors.transparent,
-            content: AwesomeSnackbarContent(
-              title: 'On Snap!',
-              message: event,
-
-              /// change contentType to ContentType.success, ContentType.warning or ContentType.help for variants
-              contentType: ContentType.failure,
-            ),
-          ));
+          ScaffoldMessenger.of(_scaffoldKey.currentContext!).showSnackBar(errorSnackbar(error));
         }
       });
     });
@@ -85,13 +75,7 @@ class _MainViewState extends State<MainView> {
                 ),
                 ...?snapshot.data
                     ?.map((e) => NavigationRailDestination(
-                          icon: e.partner.profile == "null"
-                              ? const Icon(Icons.supervised_user_circle_rounded)
-                              : Image(
-                                  image: ResizeImage(MemoryImage(base64Decode(e.partner.profile)),
-                                      width: 50, height: 50),
-                                  fit: BoxFit.contain,
-                                ),
+                          icon: circleAvatar(e.partner),
                           //    icon: ,
                           label: Text(e.chatName),
                         ))

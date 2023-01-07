@@ -37,8 +37,9 @@ class SocketInterface {
   SocketInterface(String address) {
     Socket.connect(address, 2000).then((Socket sock) {
       _socket = sock;
-      _socket!
-          .listen(dataHandler, onError: errorHandler, cancelOnError: false, onDone: doneHandler);
+
+      // _socket!.listen(dataHandler, onError: errorHandler, cancelOnError: false, onDone: doneHandler);
+      listen();
     }).catchError((e) {
       print("Unable to connect: $e");
       _socket = null;
@@ -56,69 +57,113 @@ class SocketInterface {
       callbackRegister[value[1]] = completer;
       _socket!.writeln(value[0]);
     });
-
     return completer.future;
   }
 
-  void dataHandler(List<int> data) {
-    final List<String> input = utf8.decode(data).trim().split("\n");
-    //Idk why this is necessary...
-    for (String value in input) {
-      if (!PacketScanner.isValidForm(value)) {
-        //Discard input
-        return;
+  void listen() async {
+    final Stream<String> serverSocket = _socket!.asBroadcastStream().map(String.fromCharCodes);
+
+    const terminator = 'message::end';
+
+/*
+    // Reduce with a condition [combineWhile]
+    serverSocket
+        .reduceWhile(
+          combine: (previous, element) => previous + element,
+          combineWhile: (element) => !element.endsWith(terminator),
+        )
+        .then((value) => value.replaceRange(
+              value.length - terminator.length,
+              value.length,
+              '',
+            ))
+        .then(handleData);
+
+
+ */
+
+    String message = '';
+
+    await for (String packet in serverSocket) {
+      // If you are using [message] as a List of bytes (Uint8List):
+      // message = [...Uint8List.fromList(message), ...Uint8List(packet)]
+      message += packet;
+
+      // Do not compare directly packet == kMessageEof
+      // cause it can be 'broken' into multiple packets:
+      // -> 00000 (packet 1)
+      // -> 00000 (packet 2)
+      // -> 00mes (packet 3)
+      // -> sage: (packet 4)
+      // -> end   (packet 5)
+      if (message.endsWith(terminator)) {
+        // remove termination string
+        message = message.replaceRange(
+          message.length - terminator.length,
+          message.length,
+          '',
+        );
+        handleData(message);
+        message = '';
       }
+    }
+  }
 
-      final PacketCapsule packetParser = PacketCapsule(jsonDecode(value));
-      if (!packetParser.isPacketValid()) {
-        return;
-      }
+  void handleData(String input) {
+    if (!PacketScanner.isValidForm(input)) {
+      //Discard input
+      return;
+    }
 
-      if (callbackRegister.containsKey(packetParser.stamp)) {
-        //Complete the future.
-        callbackRegister[packetParser.stamp]?.complete(packetParser);
-        callbackRegister.remove(packetParser.stamp);
-      }
+    final PacketCapsule packetParser = PacketCapsule(jsonDecode(input));
+    if (!packetParser.isPacketValid()) {
+      return;
+    }
 
-      //Catch error
-      if (packetParser.id == 'ERR') {
-        //Resolve error from its code
-        final int errorCode = int.parse(packetParser.operation);
-        final ErrorType errorType =
-            ErrorType.values.where((element) => element.code == errorCode).first;
-        errors.add(errorType.description);
-        print(errorType.description);
-        return;
-      }
+    if (callbackRegister.containsKey(packetParser.stamp)) {
+      //Complete the future.
+      callbackRegister[packetParser.stamp]?.complete(packetParser);
+      callbackRegister.remove(packetParser.stamp);
+    }
 
-      //Handle incoming chat
-      if (packetParser.id == 'CHT') {
-        if (packetParser.operation == 'REC') {
-          final String message = packetParser.nthArgument(0);
-          final String sender = packetParser.nthArgument(1);
-          final String receiver = packetParser.nthArgument(2);
+    //Catch error
+    if (packetParser.id == 'ERR') {
+      //Resolve error from its code
+      final int errorCode = int.parse(packetParser.operation);
+      final ErrorType errorType =
+          ErrorType.values.where((element) => element.code == errorCode).first;
+      errors.add(errorType.description);
+      print(errorType.description);
+      return;
+    }
 
-          final String partnerTag = sender == localUser.tag ? receiver : sender;
+    //Handle incoming chat
+    if (packetParser.id == 'CHT') {
+      if (packetParser.operation == 'REC') {
+        final String message = packetParser.nthArgument(0);
+        final String sender = packetParser.nthArgument(1);
+        final String receiver = packetParser.nthArgument(2);
 
-          if (userHandler.containsTag(partnerTag)) {
-            //Use the existing data --> Less traffic
-            final User partnerUser = userHandler.getUser(partnerTag);
+        final String partnerTag = sender == localUser.tag ? receiver : sender;
+
+        if (userHandler.containsTag(partnerTag)) {
+          //Use the existing data --> Less traffic
+          final User partnerUser = userHandler.getUser(partnerTag);
+          final User senderUser = sender == localUser.tag ? localUser : partnerUser;
+
+          chatHandler.addToChat(partnerUser, Message(senderUser, message));
+          //Update all the active chat
+          chatController.add(chatHandler.chats);
+        } else {
+          //Resolve the tag and continue
+          send(UserGetPacket(partnerTag))
+              .then((value) => User.fromJson(value.nthArgument(0)))
+              .then((partnerUser) {
+            userHandler.addUser(partnerUser);
             final User senderUser = sender == localUser.tag ? localUser : partnerUser;
-
             chatHandler.addToChat(partnerUser, Message(senderUser, message));
-            //Update all the active chat
             chatController.add(chatHandler.chats);
-          } else {
-            //Resolve the tag and continue
-            send(UserGetPacket(partnerTag))
-                .then((value) => User.fromJson(value.nthArgument(0)))
-                .then((partnerUser) {
-              userHandler.addUser(partnerUser);
-              final User senderUser = sender == localUser.tag ? localUser : partnerUser;
-              chatHandler.addToChat(partnerUser, Message(senderUser, message));
-              chatController.add(chatHandler.chats);
-            });
-          }
+          });
         }
       }
     }

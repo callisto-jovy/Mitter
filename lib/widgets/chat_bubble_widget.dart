@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:it_class_frontend/constants.dart';
 
@@ -21,19 +19,7 @@ class ChatBubble extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.only(left: 10),
-              child: Material(
-                elevation: 20,
-                shape: const CircleBorder(),
-                clipBehavior: Clip.antiAlias,
-                child: (_message.sender.profile != "null")
-                    ? Image.memory(
-                        base64Decode(_message.sender.profile),
-                        fit: BoxFit.cover,
-                      )
-                    : const Icon(Icons.supervised_user_circle_rounded),
-              ),
-            ),
+                padding: const EdgeInsets.only(left: 10), child: circleAvatar(_message.sender)),
             Expanded(
               child: Text(
                 _message.content,
@@ -56,36 +42,27 @@ class ChatBubble extends StatelessWidget {
                 topRight: Radius.circular(15),
                 bottomLeft: Radius.circular(15))),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-              padding: const EdgeInsets.only(left: 10),
-              child: Material(
-                elevation: 20,
-                shape: const CircleBorder(),
-                clipBehavior: Clip.antiAlias,
-                child: (localUser.profile != "null")
-                    ? Image.memory(
-                        base64Decode(localUser.profile),
-                        fit: BoxFit.cover,
-                      )
-                    : const Icon(Icons.supervised_user_circle_rounded),
-              ),
-            ),
             Expanded(
               child: Text(
                 _message.content,
-                textAlign: TextAlign.center,
                 maxLines: 1,
+                textAlign: TextAlign.end,
                 softWrap: false,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
+            Container(padding: const EdgeInsets.all(10), child: circleAvatar(_message.sender)),
           ],
         ),
       );
 
   @override
   Widget build(BuildContext context) {
-    return _message.sender.tag == localUser.tag ? ownSender(context) : foreignSender(context);
+    return Container(
+        padding: const EdgeInsets.only(left: 10, right: 10),
+        child: _message.sender.tag == localUser.tag ? ownSender(context) : foreignSender(context));
   }
 }

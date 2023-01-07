@@ -1,13 +1,26 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:it_class_frontend/chat/chat_handler.dart';
 import 'package:it_class_frontend/users/user.dart';
 import 'package:it_class_frontend/users/user_handler.dart';
+import 'package:it_class_frontend/widgets/user_avatar.dart';
 
 late User localUser;
 ChatHandler chatHandler = ChatHandler();
 UserHandler userHandler = UserHandler();
 
+Widget circleAvatar(User user, {double? radius}) => user.profile == 'null'
+    ? UserAvatar(
+        radius: radius,
+        child: Text(user.initials),
+      )
+    : UserAvatar(
+        radius: radius,
+        backgroundImage: MemoryImage(base64Decode(user.profile)),
+        filterQuality: FilterQuality.medium,
+      );
 
 TextStyle loginTitleStyle(Size size) => GoogleFonts.openSans(
       fontSize: size.height * 0.060,
