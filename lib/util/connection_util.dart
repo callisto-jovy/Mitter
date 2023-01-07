@@ -141,8 +141,7 @@ class SocketInterface {
 
     if (msg != null) {
       send(UserGetPacket(receiver)).then((value) {
-        final User resolved =
-            User(value.nthArgument(0), value.nthArgument(1), value.nthArgument(2));
+        final User resolved = User.fromJson(value.nthArgument(0));
         userHandler.addUser(resolved);
 
         final Chat chat = Chat(resolved);

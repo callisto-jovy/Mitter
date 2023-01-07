@@ -4,6 +4,7 @@ import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:it_class_frontend/util/connection_util.dart';
+import 'package:it_class_frontend/views/account_view.dart';
 import 'package:it_class_frontend/views/chat_view.dart';
 
 import 'home_view.dart';
@@ -41,6 +42,7 @@ class _MainViewState extends State<MainView> {
             content: AwesomeSnackbarContent(
               title: 'On Snap!',
               message: event,
+
               /// change contentType to ContentType.success, ContentType.warning or ContentType.help for variants
               contentType: ContentType.failure,
             ),
@@ -116,7 +118,7 @@ class _MainViewState extends State<MainView> {
             controller: _pageController,
             scrollDirection: Axis.horizontal,
             children: <Widget>[
-              const HomeView(), //TODO: Account
+              const AccountView(),
               const HomeView(),
               ChatView(_selectedChat),
             ],

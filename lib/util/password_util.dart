@@ -16,7 +16,6 @@ void login(final String tag, final String password, Function(bool) accepted) asy
   final String generatedHash =
       hashing.generateBase64Key(tag + password, Salt.generate(salt_length), key_rounds, key_length);
   //Send off to server to validate and register callback
-
   Get.find<SocketInterface>().send(SignInPacket(tag, generatedHash)).then((value) {
     if (value.operation == 'COMPLETE') {
       localUser = User.fromJson(value.nthArgument(0));
