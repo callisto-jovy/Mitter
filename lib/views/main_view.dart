@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:it_class_frontend/constants.dart';
@@ -61,7 +59,7 @@ class _MainViewState extends State<MainView> {
                       duration: const Duration(milliseconds: 200), curve: Curves.easeIn);
                 });
               },
-              labelType: NavigationRailLabelType.selected,
+              labelType: NavigationRailLabelType.all,
               destinations: [
                 const NavigationRailDestination(
                   icon: Icon(Icons.account_circle_outlined),
@@ -75,7 +73,7 @@ class _MainViewState extends State<MainView> {
                 ),
                 ...?snapshot.data
                     ?.map((e) => NavigationRailDestination(
-                          icon: circleAvatar(e.partner),
+                          icon: circleAvatar(e.partner, radius: 24),
                           label: Text(e.chatName),
                         ))
                     .toList(),

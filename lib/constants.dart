@@ -24,7 +24,9 @@ Widget circleAvatar(User user, {double? radius}) => user.profile == 'null'
       )
     : UserAvatar(
         radius: radius,
-        backgroundImage: MemoryImage(base64Decode(user.profile)),
+        backgroundImage: Image.memory(
+          base64Decode(user.profile),
+        ).image,
         filterQuality: FilterQuality.medium,
       );
 
@@ -39,8 +41,6 @@ TextStyle loginSubtitleStyle(Size size) => GoogleFonts.openSans(
 
 TextStyle loginFinePrintStyle(Size size, {Color? color}) =>
     GoogleFonts.openSans(fontSize: 15, color: color ?? Colors.grey, height: 1.5);
-
-TextStyle textFormFieldStyle() => const TextStyle(color: Colors.black);
 
 TextStyle textFormErrorStyle() => const TextStyle(color: Colors.redAccent);
 

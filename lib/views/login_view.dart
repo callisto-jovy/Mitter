@@ -39,7 +39,6 @@ class _LoginViewState extends State<LoginView> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-        backgroundColor: Colors.white,
         resizeToAvoidBottomInset: false,
         body: LayoutBuilder(
           builder: (context, constraints) {
@@ -125,7 +124,6 @@ class _LoginViewState extends State<LoginView> {
               children: [
                 /// tag
                 TextFormField(
-                  style: textFormFieldStyle(),
                   decoration: const InputDecoration(
                     prefixIcon: Icon(Icons.tag_rounded),
                     hintText: 'Tag',
@@ -151,7 +149,6 @@ class _LoginViewState extends State<LoginView> {
                 /// password
                 Obx(
                   () => TextFormField(
-                    style: textFormFieldStyle(),
                     controller: passwordController,
                     obscureText: simpleUIController.isObscure.value,
                     decoration: InputDecoration(
@@ -223,8 +220,7 @@ class _LoginViewState extends State<LoginView> {
                       children: [
                         TextSpan(
                           text: 'Sign up',
-                          style: loginFinePrintStyle(size,
-                              color: Theme.of(context).colorScheme.secondary),
+                          style: loginFinePrintStyle(size, color: Theme.of(context).colorScheme.secondary),
                         ),
                       ],
                     ),

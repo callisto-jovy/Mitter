@@ -39,7 +39,6 @@ class _SignUpViewState extends State<SignUpView> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-          backgroundColor: Colors.white,
           resizeToAvoidBottomInset: false,
           body: LayoutBuilder(
             builder: (context, constraints) {
@@ -109,7 +108,6 @@ class _SignUpViewState extends State<SignUpView> {
               children: [
                 /// username
                 TextFormField(
-                  style: textFormFieldStyle(),
                   decoration: const InputDecoration(
                     prefixIcon: Icon(Icons.person),
                     hintText: 'Username',
@@ -133,7 +131,6 @@ class _SignUpViewState extends State<SignUpView> {
                 ),
                 // Tag
                 TextFormField(
-                  style: textFormFieldStyle(),
                   controller: _tagController,
                   decoration: const InputDecoration(
                     prefixIcon: Icon(Icons.tag_rounded),

@@ -16,7 +16,7 @@ class FullWidthElevatedButton extends StatelessWidget {
       height: height,
       child: ElevatedButton(
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all(Theme.of(context).colorScheme.secondary),
+        //  backgroundColor: MaterialStateProperty.all(Theme.of(context).colorScheme.secondary),
           shape: MaterialStateProperty.all(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15),

@@ -87,15 +87,7 @@ class _HomeViewState extends State<HomeView> {
                 ),
                 context: context,
               ),
-
-              /*showDialog(
-                  context: context,
-                  barrierColor: Colors.black.withOpacity(0.5),
-                  builder: (context) => const Material(child: SearchTagDialog())),
-
-     */
               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(Theme.of(context).colorScheme.secondary),
                 shape: MaterialStateProperty.all(
                   RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                 ),

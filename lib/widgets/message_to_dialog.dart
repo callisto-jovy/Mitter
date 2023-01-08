@@ -33,7 +33,6 @@ class MessageToDialog extends StatelessWidget {
                   child: Column(
                     children: [
                       TextField(
-                        style: textFormFieldStyle(),
                         autofocus: true,
                         controller: _tagController,
                         textAlign: TextAlign.left,
@@ -50,7 +49,6 @@ class MessageToDialog extends StatelessWidget {
                         height: size.height * 0.02,
                       ),
                       TextField(
-                        style: textFormFieldStyle(),
                         textAlign: TextAlign.left,
                         controller: _messageController,
                         decoration: InputDecoration(

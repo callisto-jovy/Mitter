@@ -10,7 +10,7 @@ class ChatBubble extends StatelessWidget {
 
   Widget foreignSender(BuildContext context) => Card(
         elevation: 10,
-        color: Theme.of(context).colorScheme.surface,
+       // color: Theme.of(context).colorScheme.surface,
         shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(15),

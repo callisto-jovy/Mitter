@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../constants.dart';
-
 class MessageSendField extends StatefulWidget {
   final Function(String) _onPressed;
 
@@ -14,7 +12,6 @@ class MessageSendField extends StatefulWidget {
 class _MessageSendFieldState extends State<MessageSendField> {
   final TextEditingController _textEditingController = TextEditingController();
 
-
   @override
   void dispose() {
     _textEditingController.dispose();
@@ -24,18 +21,16 @@ class _MessageSendFieldState extends State<MessageSendField> {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-
     return SizedBox(
       width: size.width / 1.2,
       height: 50,
       child: TextFormField(
-        style: textFormFieldStyle(),
         controller: _textEditingController,
+        textAlignVertical: TextAlignVertical.center,
         decoration: InputDecoration(
           border: const OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(15)),
           ),
-          fillColor: Theme.of(context).colorScheme.surface,
           suffixIcon: IconButton(
               icon: const Icon(Icons.send),
               onPressed: () {
