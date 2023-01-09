@@ -120,7 +120,7 @@ class _SignUpViewState extends State<SignUpView> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter a username.';
-                    } else if (!value.isUsernameValidLength()) {
+                    } else if (!value.isUsernameValidLength) {
                       return errorMessageInvalidLength('username', lower: 4, upper: 20);
                     }
                     return null;
@@ -142,7 +142,7 @@ class _SignUpViewState extends State<SignUpView> {
                   validator: (input) {
                     if (input == null || input.isEmpty) {
                       return 'Please enter a tag.';
-                    } else if (!input.isTagValidLength()) {
+                    } else if (!input.isTagValidLength) {
                       return errorMessageInvalidLength('tag', lower: 4, upper: 20);
                     }
                     return null;
@@ -179,7 +179,7 @@ class _SignUpViewState extends State<SignUpView> {
                     validator: (String? value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter a password.';
-                      } else if (!value.isPasswordValidLength()) {
+                      } else if (!value.isPasswordValidLength) {
                         return errorMessageInvalidLength('password', lower: 5);
                       }
                       return null;

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:it_class_frontend/constants.dart';
+import 'package:it_class_frontend/util/stream_extension.dart';
+import 'package:it_class_frontend/util/string_validator.dart';
+import 'package:link_preview_generator/link_preview_generator.dart';
 
 import '../chat/message.dart';
 
@@ -8,9 +11,40 @@ class ChatBubble extends StatelessWidget {
 
   const ChatBubble(this._message, {Key? key}) : super(key: key);
 
+  Widget linkPreview(String link) => LinkPreviewGenerator(
+        link: link,
+        linkPreviewStyle: LinkPreviewStyle.small,
+        showGraphic: false,
+      );
+
+  //TODO: Optimize
+  Widget richText({required TextAlign textAlign}) => RichText(
+    textAlign: textAlign,
+      text: TextSpan(
+          children: _message.content
+              .split(r'\s+')
+              .split((element) => element.isValidUrl)
+              .map((e) => TextSpan(
+                  children: e
+                      .map((e) => TextSpan(
+                          text: e, style: TextStyle(color: e.isValidUrl ? Colors.blueGrey : null)))
+                      .toList()))
+              .toList()));
+
+  Widget messageText({TextAlign? textAlign}) => Expanded(
+        child: Text(
+          _message.content,
+          textAlign: textAlign,
+          maxLines: 1,
+          softWrap: false,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(color: _message.content.isValidUrl ? Colors.blueAccent : null),
+        ),
+      );
+
   Widget foreignSender(BuildContext context) => Card(
         elevation: 10,
-       // color: Theme.of(context).colorScheme.surface,
+        // color: Theme.of(context).colorScheme.surface,
         shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(15),
@@ -18,17 +52,8 @@ class ChatBubble extends StatelessWidget {
                 bottomRight: Radius.circular(15))),
         child: Row(
           children: [
-            Container(
-                padding: const EdgeInsets.only(left: 10), child: circleAvatar(_message.sender)),
-            Expanded(
-              child: Text(
-                _message.content,
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                softWrap: false,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
+            Container(padding: const EdgeInsets.all(10), child: circleAvatar(_message.sender)),
+            messageText(textAlign: TextAlign.start),
           ],
         ),
       );
@@ -45,15 +70,7 @@ class ChatBubble extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Expanded(
-              child: Text(
-                _message.content,
-                maxLines: 1,
-                textAlign: TextAlign.end,
-                softWrap: false,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
+            richText(textAlign: TextAlign.end),
             Container(padding: const EdgeInsets.all(10), child: circleAvatar(_message.sender)),
           ],
         ),

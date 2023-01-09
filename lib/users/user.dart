@@ -1,14 +1,18 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 class User {
   final String _username;
   final String _tag;
-  String profile;
+  Uint8List profile;
+
 
   User(this._tag, this._username, this.profile);
 
   User.fromJson(Map<String, dynamic> json)
       : _username = json['username'],
         _tag = json['tag'],
-        profile = json['pic'];
+        profile = base64Decode(json['pic']);
 
   String get tag => _tag;
 

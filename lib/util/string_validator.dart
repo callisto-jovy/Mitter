@@ -1,13 +1,17 @@
 extension Validation on String {
-  bool isUsernameValidLength() {
+  bool get isUsernameValidLength {
     return length > 4 && length < 20 && isNotEmpty;
   }
 
-  bool isPasswordValidLength() {
+  bool get isPasswordValidLength {
     return length > 4 && isNotEmpty;
   }
 
-  bool isTagValidLength() {
+  bool get isTagValidLength {
     return length > 5 && length < 15;
+  }
+
+  bool get isValidUrl {
+    return Uri.tryParse(this)?.hasAbsolutePath ?? false;
   }
 }

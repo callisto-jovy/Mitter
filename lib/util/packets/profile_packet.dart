@@ -1,9 +1,12 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:it_class_frontend/util/packets/packet.dart';
 
 import '../encoder_util.dart';
 
 class ProfilePacket extends Packet {
-  final String _base64;
+  final Uint8List _base64;
 
   ProfilePacket(this._base64);
 
@@ -16,6 +19,6 @@ class ProfilePacket extends Packet {
   Future<Map<String, dynamic>> send() async => {
     keyId: 'ACC',
     keyOperation: 'PROFILE',
-    keyArguments: [_base64]
+    keyArguments: [base64Encode(_base64)]
   };
 }

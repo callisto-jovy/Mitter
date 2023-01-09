@@ -6,9 +6,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:it_class_frontend/constants.dart';
+import 'package:it_class_frontend/main.dart';
 import 'package:it_class_frontend/util/connection_util.dart';
 import 'package:it_class_frontend/util/packets/logout_packet.dart';
 import 'package:it_class_frontend/util/packets/profile_packet.dart';
+import 'package:it_class_frontend/util/preferences_util.dart';
 import 'package:it_class_frontend/views/login_view.dart';
 import 'package:it_class_frontend/widgets/snackbars.dart';
 import 'package:settings_ui/settings_ui.dart';
@@ -31,12 +33,12 @@ class _AccountViewState extends State<AccountView> {
             if (value != null) {
               final File file = File(value.files.single.path!);
               //Convert the file's bytes into base64 then send the base64 string to the server and display a message in case of success.
-              file.readAsBytes().then((value) => base64Encode(value)).then((base) {
-                Get.find<SocketInterface>().send(ProfilePacket(base)).then((value) =>
+              file.readAsBytes().then((value) {
+                Get.find<SocketInterface>().send(ProfilePacket(value)).then((value) =>
                     ScaffoldMessenger.of(context).showSnackBar(successSnackbar(value.operation)));
                 setState(() {
                   //TODO: Rail
-                  localUser.profile = base;
+                  localUser.profile = value;
                 });
               });
             }
@@ -90,12 +92,19 @@ class _AccountViewState extends State<AccountView> {
               title: const Text('Language'),
               value: const Text('English'),
             ),
+            /*
             SettingsTile.switchTile(
-              onToggle: (value) {},
-              initialValue: true,
+              onToggle: (value) {
+                setState(() {
+                  HiveInterface().toggleDarkTheme(value);
+                });
+              },
+              initialValue: HiveInterface().darkTheme,
               leading: const Icon(Icons.format_paint),
-              title: const Text('Enable custom theme'),
+              title: const Text('Dark Theme'),
             ),
+
+             */
             SettingsTile.navigation(
               title: const Text('Logout'),
               onPressed: (context) =>

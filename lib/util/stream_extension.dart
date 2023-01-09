@@ -23,3 +23,22 @@ extension ReduceWhile<T> on Stream<T> {
     return initial;
   }
 }
+
+extension SplitInto<T> on List<T> {
+  Iterable<List<T>> split(bool Function(T element) test) sync* {
+    if (isEmpty) return;
+    int start = 0;
+    for (int i = 0; i < length; i++) {
+      T element = this[i];
+
+      if (test(element) && start < i) {
+        yield sublist(start, i);
+        start = i;
+      }
+
+    }
+    if (start < length) {
+      yield sublist(start);
+    }
+  }
+}

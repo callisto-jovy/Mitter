@@ -85,13 +85,12 @@ class SocketInterface {
         if (terminatorIndex == terminatorSequence.length) {
           //packet terminated
           final String message =
-          utf8.decode(bytesRead.sublist(0, bytesRead.length - terminatorSequence.length));
+              utf8.decode(bytesRead.sublist(0, bytesRead.length - terminatorSequence.length));
           handleData(message); //Send off to handle the data
           bytesRead.clear(); //Clear the read bytes, a new packet has to be read from the buffer(s)
           terminatorIndex = 0; //Reset the terminator index
         }
       }
-
     }
   }
 

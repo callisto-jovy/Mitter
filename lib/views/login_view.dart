@@ -136,7 +136,7 @@ class _LoginViewState extends State<LoginView> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter a tag.';
-                    } else if (!value.isTagValidLength()) {
+                    } else if (!value.isTagValidLength) {
                       return errorMessageInvalidLength('tag', lower: 4, upper: 20);
                     }
                     return null;
@@ -172,7 +172,7 @@ class _LoginViewState extends State<LoginView> {
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter a password.';
-                      } else if (!value.isPasswordValidLength()) {
+                      } else if (!value.isPasswordValidLength) {
                         return errorMessageInvalidLength('password', lower: 5);
                       }
                       return null;
