@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:it_class_frontend/constants.dart';
+import 'package:it_class_frontend/util/meta_data_parser.dart';
 import 'package:it_class_frontend/util/stream_extension.dart';
 import 'package:it_class_frontend/util/string_validator.dart';
-import 'package:link_preview_generator/link_preview_generator.dart';
+import 'package:it_class_frontend/widgets/link_preview_widget.dart';
 
 import '../chat/message.dart';
 
@@ -11,10 +12,11 @@ class ChatBubble extends StatelessWidget {
 
   const ChatBubble(this._message, {Key? key}) : super(key: key);
 
-  Widget linkPreview(String link) => LinkPreviewGenerator(
-        link: link,
-        linkPreviewStyle: LinkPreviewStyle.small,
-        showGraphic: false,
+  Widget linkPreview(String link) => Container(
+        padding: const EdgeInsets.only(left: 5, bottom: 5),
+        child: LinkPreviewWidget(
+          link,
+        ),
       );
 
   //TODO: Optimize
@@ -66,12 +68,18 @@ class ChatBubble extends StatelessWidget {
                 topLeft: Radius.circular(15),
                 topRight: Radius.circular(15),
                 bottomLeft: Radius.circular(15))),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.center,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            richText(textAlign: TextAlign.end),
-            Container(padding: const EdgeInsets.all(10), child: circleAvatar(_message.sender)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                richText(textAlign: TextAlign.end),
+                Container(padding: const EdgeInsets.all(10), child: circleAvatar(_message.sender)),
+              ],
+            ),
+            isValidUrl(_message.content) ? linkPreview(_message.content) : Container()
           ],
         ),
       );

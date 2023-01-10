@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:it_class_frontend/util/connection_util.dart';
 
-import '../constants.dart';
 
 class MessageToDialog extends StatelessWidget {
   MessageToDialog({Key? key}) : super(key: key);

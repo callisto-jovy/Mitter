@@ -45,7 +45,9 @@ dependencies:
   file_picker: ^5.2.4
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-  link_preview_generator: ^1.2.0
+  html: ^0.15.1
+  http: ^0.13.5
+  cached_network_image: ^3.2.3
 
 
 dev_dependencies:

@@ -30,7 +30,6 @@ class _ChatViewState extends State<ChatView> {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-
     return Column(
       children: [
         StreamBuilder(
@@ -46,7 +45,7 @@ class _ChatViewState extends State<ChatView> {
                 height: size.height / 1.15,
                 width: size.width / 1.2,
                 child: ListView(
-                  itemExtent: 75,
+                  shrinkWrap: true,
                   reverse: false,
                   controller: _scrollController,
                   children:
@@ -59,15 +58,20 @@ class _ChatViewState extends State<ChatView> {
           },
           stream: Get.find<SocketInterface>().chatController.stream,
         ),
-        MessageSendField((String text) {
-          final Chat chat = chatHandler.chats[widget._chatIndex];
+        Expanded(
+          child: MessageSendField((String text) {
+            final Chat chat = chatHandler.chats[widget._chatIndex];
 
-          Get.find<SocketInterface>()
-              .send(SendChatPacket(text, receiver: chat.partnerTag))
-              .then((value) => value.operation == 'SUCCESS' && chat.partnerTag != localUser.tag)
-              .then((value) => value ? chat.messages.add(Message(localUser, text)) : null) //Append the message
-              .then((value) => Get.find<SocketInterface>().chatController.add(chatHandler.chats)); //Update the chats.
-        }),
+            Get.find<SocketInterface>()
+                .send(SendChatPacket(text, receiver: chat.partnerTag))
+                .then((value) => value.operation == 'SUCCESS' && chat.partnerTag != localUser.tag)
+                .then((value) =>
+                    value ? chat.messages.add(Message(localUser, text)) : null) //Append the message
+                .then((value) => Get.find<SocketInterface>()
+                    .chatController
+                    .add(chatHandler.chats)); //Update the chats.
+          }),
+        ),
       ],
     );
   }

@@ -118,7 +118,6 @@ class SocketInterface {
       final ErrorType errorType =
           ErrorType.values.where((element) => element.code == errorCode).first;
       errors.add(errorType.description);
-      print(errorType.description);
       return;
     }
 
@@ -183,7 +182,7 @@ class SocketInterface {
   }
 
   void errorHandler(error, StackTrace trace) {
-    print(error);
+    errors.add(error);
     _socket!.close();
   }
 

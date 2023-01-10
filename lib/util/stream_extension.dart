@@ -35,10 +35,19 @@ extension SplitInto<T> on List<T> {
         yield sublist(start, i);
         start = i;
       }
-
     }
     if (start < length) {
       yield sublist(start);
     }
+  }
+}
+
+extension ToMap<T> on Iterable<T> {
+  Map<String, E> toMap<E>(String Function(T key) key, E Function(T value) value) {
+    Map<String, E> map = {};
+    for (T element in this) {
+      map[key(element)] = value(element);
+    }
+    return map;
   }
 }
