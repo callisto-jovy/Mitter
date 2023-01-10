@@ -19,7 +19,7 @@ class ChatBubble extends StatelessWidget {
 
   //TODO: Optimize
   Widget richText({required TextAlign textAlign}) => RichText(
-    textAlign: textAlign,
+      textAlign: textAlign,
       text: TextSpan(
           children: _message.content
               .split(r'\s+')
@@ -78,8 +78,9 @@ class ChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        padding: const EdgeInsets.only(left: 10, right: 10),
-        child: _message.sender.tag == localUser.tag ? ownSender(context) : foreignSender(context));
+    return _message.sender.tag == localUser.tag
+        ? Container(padding: const EdgeInsets.only(left: 30, right: 10), child: ownSender(context))
+        : Container(
+            padding: const EdgeInsets.only(left: 10, right: 30), child: foreignSender(context));
   }
 }

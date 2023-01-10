@@ -16,15 +16,16 @@ void logout() {
   userHandler.users.clear();
 }
 
-
-Widget circleAvatar(User user, {double? radius}) => user.profile == 'null'
+Widget circleAvatar(User user, {double? radius}) => user.profile.isEmpty
     ? UserAvatar(
         radius: radius,
         child: Text(user.initials),
       )
     : UserAvatar(
         radius: radius,
-        backgroundImage: MemoryImage(user.profile,),
+        backgroundImage: MemoryImage(
+          user.profile,
+        ),
         filterQuality: FilterQuality.medium,
       );
 
