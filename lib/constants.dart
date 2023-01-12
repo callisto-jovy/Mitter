@@ -23,9 +23,11 @@ Widget circleAvatar(User user, {double? radius}) => user.profile.isEmpty
       )
     : UserAvatar(
         radius: radius,
-        backgroundImage: MemoryImage(
+        backgroundImage: Image.memory(
           user.profile,
-        ),
+          cacheWidth: 64,
+          cacheHeight: 64,
+        ).image,
         filterQuality: FilterQuality.medium,
       );
 

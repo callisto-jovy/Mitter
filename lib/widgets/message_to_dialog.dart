@@ -62,7 +62,7 @@ class MessageToDialog extends StatelessWidget {
                                 final String message = _messageController.text;
 
                                 if (message.isNotEmpty && tag.isNotEmpty) {
-                                  Get.find<SocketInterface>().sendUserChat(tag, message);
+                                  Get.find<SocketInterface>().sendNewChat(tag, message);
                                 }
                               }),
                           hintText: 'Message',

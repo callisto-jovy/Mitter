@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:it_class_frontend/constants.dart';
 import 'package:it_class_frontend/util/connection_util.dart';
+import 'package:it_class_frontend/util/packets/send_public_chat_packet.dart';
 import 'package:it_class_frontend/widgets/chat_bubble_widget.dart';
+import 'package:it_class_frontend/widgets/message_send_text_field.dart';
 import 'package:it_class_frontend/widgets/message_to_dialog.dart';
+import 'package:it_class_frontend/widgets/public_message_card.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
@@ -27,8 +30,6 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: size.width > 600 ? MainAxisAlignment.center : MainAxisAlignment.start,
       children: <Widget>[
         Center(
           child: Text(
@@ -48,52 +49,54 @@ class _HomeViewState extends State<HomeView> {
                 }
               });
               return SizedBox(
-                height: size.height / 1.15,
+                height: size.height / 1.3,
                 width: size.width / 1.2,
                 child: ListView(
-                  itemExtent: 75,
-                  reverse: true,
+                  shrinkWrap: true,
                   controller: _scrollController,
-                  children: snapshot.data!.map((e) => ChatBubble(e)).toList(),
+                  children: snapshot.data!.map((e) => PublicMessageCard(e)).toList(),
                 ),
               );
             } else {
               return const Center(child: CircularProgressIndicator());
             }
           },
-          stream: Get.find<SocketInterface>().publicMessages.stream,
+          stream: Get.find<SocketInterface>().publicMessagesControlledStream.stream,
         ),
-        SizedBox(
-          height: size.height / 1.5,
-        ),
-        Flexible(
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            alignment: Alignment.bottomRight,
-            child: ElevatedButton.icon(
-              onPressed: () => showGeneralDialog(
-                barrierDismissible: true,
-                barrierLabel: '',
-                barrierColor: Colors.black38,
-                transitionDuration: const Duration(milliseconds: 500),
-                pageBuilder: (ctx, anim1, anim2) => MessageToDialog(),
-                transitionBuilder: (ctx, anim1, anim2, child) => BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 4 * anim1.value, sigmaY: 4 * anim1.value),
-                  child: FadeTransition(
-                    opacity: anim1,
-                    child: child,
+        Expanded(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                flex: 5,
+                child: MessageSendField(
+                    (p0) => Get.find<SocketInterface>().send(SendPublicChatPacket(p0))),
+              ),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.only(right: 10, bottom: 10, left: 10),
+
+                  child: FloatingActionButton(
+                    onPressed: () => showGeneralDialog(
+                      barrierDismissible: true,
+                      barrierLabel: '',
+                      barrierColor: Colors.black38,
+                      transitionDuration: const Duration(milliseconds: 500),
+                      pageBuilder: (ctx, anim1, anim2) => MessageToDialog(),
+                      transitionBuilder: (ctx, anim1, anim2, child) => BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 4 * anim1.value, sigmaY: 4 * anim1.value),
+                        child: FadeTransition(
+                          opacity: anim1,
+                          child: child,
+                        ),
+                      ),
+                      context: context,
+                    ),
+                    child: const Icon(Icons.message_sharp),
                   ),
                 ),
-                context: context,
               ),
-              style: ButtonStyle(
-                shape: MaterialStateProperty.all(
-                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                ),
-              ),
-              icon: const Icon(Icons.search_sharp),
-              label: const Text("Add friend"),
-            ),
+            ],
           ),
         )
       ],

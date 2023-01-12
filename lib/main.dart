@@ -7,6 +7,7 @@ import 'package:it_class_frontend/views/login_view.dart';
 import 'controller/simple_ui_controller.dart';
 
 void main(List<String> arguments) async {
+//  debugInvertOversizedImages = true;
   Get.put(SimpleUIController());
   Get.put<SocketInterface>(
     SocketInterface(arguments.first),

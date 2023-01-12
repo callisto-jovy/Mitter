@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:it_class_frontend/chat/chat.dart';
+import 'package:it_class_frontend/chat/chat_handler.dart';
 import 'package:it_class_frontend/chat/message.dart';
 import 'package:it_class_frontend/util/connection_util.dart';
 import 'package:it_class_frontend/widgets/chat_bubble_widget.dart';
@@ -32,6 +33,13 @@ class _ChatViewState extends State<ChatView> {
     final Size size = MediaQuery.of(context).size;
     return Column(
       children: [
+        Center(
+          child: Text(
+            chatHandler.chats[widget._chatIndex].chatName,
+            textAlign: TextAlign.start,
+            style: loginTitleStyle(size),
+          ),
+        ),
         StreamBuilder(
           builder: (context, snapshot) {
             if (snapshot.hasData) {
@@ -42,11 +50,10 @@ class _ChatViewState extends State<ChatView> {
                 }
               });
               return SizedBox(
-                height: size.height / 1.15,
+                height: size.height / 1.3,
                 width: size.width / 1.2,
                 child: ListView(
                   shrinkWrap: true,
-                  reverse: false,
                   controller: _scrollController,
                   children:
                       snapshot.data![widget._chatIndex].messages.map((e) => ChatBubble(e)).toList(),
@@ -56,19 +63,18 @@ class _ChatViewState extends State<ChatView> {
               return const Center(child: CircularProgressIndicator());
             }
           },
-          stream: Get.find<SocketInterface>().chatController.stream,
+          stream: Get.find<SocketInterface>().chatsControlledStream.stream,
         ),
         Expanded(
           child: MessageSendField((String text) {
             final Chat chat = chatHandler.chats[widget._chatIndex];
-
             Get.find<SocketInterface>()
                 .send(SendChatPacket(text, receiver: chat.partnerTag))
                 .then((value) => value.operation == 'SUCCESS' && chat.partnerTag != localUser.tag)
                 .then((value) =>
                     value ? chat.messages.add(Message(localUser, text)) : null) //Append the message
                 .then((value) => Get.find<SocketInterface>()
-                    .chatController
+                    .chatsControlledStream
                     .add(chatHandler.chats)); //Update the chats.
           }),
         ),

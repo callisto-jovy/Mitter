@@ -22,12 +22,13 @@ class _LinkPreviewWidgetState extends State<LinkPreviewWidget> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 snapshot.data!.image != null
                     ? CachedNetworkImage(
                         imageUrl: snapshot.data!.image!,
-                        maxHeightDiskCache: 300,
-                        maxWidthDiskCache: 300,
+                        maxHeightDiskCache: 500,
+                        maxWidthDiskCache: 500,
                         imageBuilder: (context, imageProvider) => (Container(
                           width: size.width * 0.2,
                           height: size.height * 0.2,
@@ -43,8 +44,26 @@ class _LinkPreviewWidgetState extends State<LinkPreviewWidget> {
                         errorWidget: (context, url, error) => const Icon(Icons.error),
                       )
                     : Container(),
+                const VerticalDivider(
+                  width: 10,
+                ),
                 Expanded(
-                  child: Text(snapshot.data!.title ?? 'No title.', textAlign: TextAlign.left),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(snapshot.data!.title ?? 'No title.',
+                          maxLines: 2,
+                          softWrap: true,
+                          style: Theme.of(context).textTheme.titleMedium),
+                      Text(
+                        snapshot.data!.description ?? 'No description.',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                        maxLines: 5,
+                        softWrap: true,
+                      )
+                    ],
+                  ),
                 ),
               ],
             );

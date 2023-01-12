@@ -30,7 +30,7 @@ class ChatHandler {
 
         final Chat chat = Chat(user);
         chats.add(chat);
-        Get.find<SocketInterface>().chatController.add(chats);
+        Get.find<SocketInterface>().chatsControlledStream.add(chats);
       });
 
       await si.send(ChatGetPacket(element));

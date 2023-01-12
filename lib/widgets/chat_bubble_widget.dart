@@ -78,7 +78,7 @@ class ChatBubble extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                richText(textAlign: TextAlign.end),
+                messageText(textAlign: TextAlign.end),
                 Container(padding: const EdgeInsets.all(10), child: circleAvatar(_message.sender)),
               ],
             ),

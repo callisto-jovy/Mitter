@@ -32,7 +32,7 @@ class _MainViewState extends State<MainView> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Get.find<SocketInterface>().errors.stream.listen((error) {
+      Get.find<SocketInterface>().errorsControlledStream.stream.listen((error) {
         if (_scaffoldKey.currentContext != null) {
           ScaffoldMessenger.of(_scaffoldKey.currentContext!).showSnackBar(errorSnackbar(error));
         }
@@ -79,7 +79,7 @@ class _MainViewState extends State<MainView> {
                     .toList(),
               ]);
         },
-        stream: Get.find<SocketInterface>().chatController.stream,
+        stream: Get.find<SocketInterface>().chatsControlledStream.stream,
       );
 
   @override

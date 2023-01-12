@@ -8,6 +8,7 @@ const List<String> validPackets = [
   'CHT',
   'USR',
   'ERR',
+  'PUB',
 ];
 
 const String keyId = "id";

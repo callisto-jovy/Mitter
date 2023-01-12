@@ -17,16 +17,16 @@ import 'error_resolver.dart';
 class SocketInterface {
   /// A list of all the previously incoming messages. Used to update the stream, as the stream only takes in the newest element, we need a list to keep track of every
   /// previous message
-  final List<Message> previousMessages = [];
+  final List<Message> publicMessages = [];
 
   ///StreamController used to update all the publicly available messages
-  final StreamController<List<Message>> publicMessages = BehaviorSubject();
+  final StreamController<List<Message>> publicMessagesControlledStream = BehaviorSubject();
 
   ///StreamController, in which errors may be sent, to display them to the user in the form of an alert bubble
-  final StreamController<String> errors = BehaviorSubject<String>();
+  final StreamController<String> errorsControlledStream = BehaviorSubject<String>();
 
   ///StreamController responsible for all chats
-  final StreamController<List<Chat>> chatController = BehaviorSubject();
+  final StreamController<List<Chat>> chatsControlledStream = BehaviorSubject();
 
   ///Map with an id as the key and a function, which takes in a PacketCapsule-Object, as it's value.
   ///The map is used to store the packet's callbacks. If i.e. the server directly responds to a sent packet, the referral can be identified.
@@ -49,7 +49,7 @@ class SocketInterface {
   ///Method to send any packet. [Returns] a future that is completed when a response to the exact packet is sent.
   Future<PacketCapsule> send(final Packet data) async {
     if (!isConnected) {
-      errors.add('You are offline.');
+      errorsControlledStream.add('You are offline.');
       return Future.error('The socket is not connected!');
     }
     final Completer<PacketCapsule> completer = Completer();
@@ -117,39 +117,56 @@ class SocketInterface {
       final int errorCode = int.parse(packetParser.operation);
       final ErrorType errorType =
           ErrorType.values.where((element) => element.code == errorCode).first;
-      errors.add(errorType.description);
+      errorsControlledStream.add(errorType.description);
       return;
     }
 
     //Handle incoming chat
-    if (packetParser.id == 'CHT') {
-      if (packetParser.operation == 'REC') {
-        final String message = packetParser.nthArgument(0);
-        final String sender = packetParser.nthArgument(1);
-        final String receiver = packetParser.nthArgument(2);
+    if (packetParser.id == 'CHT' && packetParser.operation == 'REC') {
+      _handleIncomingChat(packetParser);
+    } else if (packetParser.id == 'PUB' && packetParser.operation == 'REC') {
+      _handleIncomingPublicChat(packetParser);
+    }
+  }
 
-        final String partnerTag = sender == localUser.tag ? receiver : sender;
+  void _handleIncomingPublicChat(final PacketCapsule parsedPacket) {
+    final String content = parsedPacket.nthArgument(0);
+    final String sender = parsedPacket.nthArgument(1);
 
-        if (userHandler.containsTag(partnerTag)) {
-          //Use the existing data --> Less traffic
-          final User partnerUser = userHandler.getUser(partnerTag);
-          final User senderUser = sender == localUser.tag ? localUser : partnerUser;
+    if(userHandler.containsTag(sender)) {
+      final User senderUser = userHandler.getUser(sender);
+      publicMessages.add(Message(senderUser, content));
 
-          chatHandler.addToChat(partnerUser, Message(senderUser, message));
-          //Update all the active chat
-          chatController.add(chatHandler.chats);
-        } else {
-          //Resolve the tag and continue
-          send(UserGetPacket(partnerTag))
-              .then((value) => User.fromJson(value.nthArgument(0)))
-              .then((partnerUser) {
-            userHandler.addUser(partnerUser);
-            final User senderUser = sender == localUser.tag ? localUser : partnerUser;
-            chatHandler.addToChat(partnerUser, Message(senderUser, message));
-            chatController.add(chatHandler.chats);
-          });
-        }
-      }
+      publicMessagesControlledStream.add(publicMessages);
+    }
+
+  }
+
+  void _handleIncomingChat(final PacketCapsule parsedPacket) {
+    final String content = parsedPacket.nthArgument(0);
+    final String sender = parsedPacket.nthArgument(1);
+    final String receiver = parsedPacket.nthArgument(2);
+
+    final String partnerTag = sender == localUser.tag ? receiver : sender;
+
+    if (userHandler.containsTag(partnerTag)) {
+      //Use the existing data --> Less traffic
+      final User partnerUser = userHandler.getUser(partnerTag);
+      final User senderUser = sender == localUser.tag ? localUser : partnerUser;
+
+      chatHandler.addToChat(partnerUser, Message(senderUser, content));
+      //Update all the active chat
+      chatsControlledStream.add(chatHandler.chats);
+    } else {
+      //Resolve the tag and continue
+      send(UserGetPacket(partnerTag))
+          .then((value) => User.fromJson(value.nthArgument(0)))
+          .then((partnerUser) {
+        userHandler.addUser(partnerUser);
+        final User senderUser = sender == localUser.tag ? localUser : partnerUser;
+        chatHandler.addToChat(partnerUser, Message(senderUser, content));
+        chatsControlledStream.add(chatHandler.chats);
+      });
     }
   }
 
@@ -157,14 +174,14 @@ class SocketInterface {
     return send(UserGetPacket(userTag)).then((value) => User.fromJson(value.nthArgument(0)));
   }
 
-  Future<void> sendUserChat(final String receiver, final String message) async {
+  Future<void> sendNewChat(final String receiver, final String message) async {
     Message? msg = await send(SendChatPacket(message, receiver: receiver)).then((value) {
       if (value.operation == 'SUCCESS' && receiver != localUser.tag) {
         //Open a new chat, request user information...
         return Message(localUser, message);
       }
     }).onError((error, stackTrace) {
-      errors.add('Error occurred in future: ${error ?? 'unknown'}');
+      errorsControlledStream.add('Error occurred in future: ${error ?? 'unknown'}');
       return null;
     });
 
@@ -176,18 +193,9 @@ class SocketInterface {
         final Chat chat = Chat(resolved);
         chat.messages.add(msg);
         chatHandler.chats.add(chat);
-        chatController.add(chatHandler.chats);
+        chatsControlledStream.add(chatHandler.chats);
       });
     }
-  }
-
-  void errorHandler(error, StackTrace trace) {
-    errors.add(error);
-    _socket!.close();
-  }
-
-  void doneHandler() {
-    if (isConnected) _socket!.destroy();
   }
 
   bool get isConnected => _socket != null;
