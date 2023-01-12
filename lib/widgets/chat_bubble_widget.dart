@@ -52,12 +52,15 @@ class ChatBubble extends StatelessWidget {
                 topLeft: Radius.circular(15),
                 topRight: Radius.circular(15),
                 bottomRight: Radius.circular(15))),
-        child: Row(
-          children: [
-            Container(padding: const EdgeInsets.all(10), child: circleAvatar(_message.sender)),
-            messageText(textAlign: TextAlign.start),
-          ],
-        ),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Row(
+            children: [
+              Container(padding: const EdgeInsets.all(10), child: circleAvatar(_message.sender)),
+              messageText(textAlign: TextAlign.start),
+            ],
+          ),
+          isValidUrl(_message.content) ? linkPreview(_message.content) : Container()
+        ]),
       );
 
   Widget ownSender(BuildContext context) => Card(

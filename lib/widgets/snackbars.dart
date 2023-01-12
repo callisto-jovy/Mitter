@@ -17,7 +17,7 @@ SnackBar successSnackbar(String message) => _defaultBar(
 
 SnackBar errorSnackbar(String message) => _defaultBar(
       AwesomeSnackbarContent(
-        title: 'On Snap!',
+        title: 'Oh Snap!',
         message: message,
 
         /// change contentType to ContentType.success, ContentType.warning or ContentType.help for variants
