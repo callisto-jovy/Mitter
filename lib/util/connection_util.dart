@@ -133,13 +133,20 @@ class SocketInterface {
     final String content = parsedPacket.nthArgument(0);
     final String sender = parsedPacket.nthArgument(1);
 
-    if(userHandler.containsTag(sender)) {
+    if (userHandler.containsTag(sender)) {
       final User senderUser = userHandler.getUser(sender);
       publicMessages.add(Message(senderUser, content));
-
       publicMessagesControlledStream.add(publicMessages);
+    } else {
+      //Resolve the tag and continue
+      send(UserGetPacket(sender))
+          .then((value) => User.fromJson(value.nthArgument(0)))
+          .then((partnerUser) {
+        userHandler.addUser(partnerUser);
+        publicMessages.add(Message(partnerUser, content));
+        publicMessagesControlledStream.add(publicMessages);
+      });
     }
-
   }
 
   void _handleIncomingChat(final PacketCapsule parsedPacket) {
